@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Insta Translate</string>
     <string name="title_activity_definition">DefinitionActivity</string>
+    <string name="translation_copied">Copied to Clipboard</string>
 </resources>

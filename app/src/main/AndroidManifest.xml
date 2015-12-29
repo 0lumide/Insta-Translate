@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:allowBackup="true"
@@ -31,10 +32,11 @@
         </receiver>
 
         <activity
-            android:excludeFromRecents="true"
             android:name=".DefinitionActivity"
+            android:excludeFromRecents="true"
             android:label="@string/title_activity_definition"
-            android:theme="@style/Theme.Transparent"/>
+            android:theme="@style/Theme.Transparent" />
+
     </application>
 
 </manifest>

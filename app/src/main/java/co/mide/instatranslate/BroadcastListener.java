@@ -5,16 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.PixelFormat;
-import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import co.mide.clipbroadcast.ClipMonitor;
 
@@ -28,6 +19,7 @@ public class BroadcastListener extends BroadcastReceiver {
             sendNotification(context, "New Clip");
 
             Intent localIntent = new Intent(context, DefinitionActivity.class);
+            localIntent.putExtra(ClipMonitor.COPIED_STRING, intent.getStringExtra(ClipMonitor.COPIED_STRING));
             localIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_MULTIPLE_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(localIntent);
 
@@ -44,7 +36,7 @@ public class BroadcastListener extends BroadcastReceiver {
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Insta Translate")
+                .setContentTitle("Instant Translate")
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
