@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Insta Translate</string>
+    <string name="title_activity_definition">DefinitionActivity</string>
 </resources>

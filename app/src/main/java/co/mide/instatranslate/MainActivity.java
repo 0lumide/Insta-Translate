@@ -1,5 +1,6 @@
 package co.mide.instatranslate;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,5 +17,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void startService(View v){
         new ClipMonitor(this).start();
+    }
+
+    public void launch(View v){
+        startActivity(new Intent(this, DefinitionActivity.class));
     }
 }

@@ -5,8 +5,15 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import co.mide.clipbroadcast.ClipMonitor;
@@ -19,20 +26,10 @@ public class BroadcastListener extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if(intent.getAction().equalsIgnoreCase(ClipMonitor.NEW_CLIP)) {
             sendNotification(context, "New Clip");
-            intent = new Intent();
-            intent.setAction(Intent.ACTION_VIEW);
-            intent.setPackage("com.google.android.apps.translate");
 
-            Uri uri = new Uri.Builder()
-                    .scheme("http")
-                    .authority("translate.google.com")
-                    .path("/m/translate")
-                    .appendQueryParameter("q", "c'est l'meunier Mathurin qui caresse les filles au tic-tac du moulin")
-                    .appendQueryParameter("tl", "pl") // target language
-                    .appendQueryParameter("sl", "fr") // source language
-                    .build();
-            //intent.setType("text/plain"); //not needed, but possible
-            intent.setData(uri);
+            Intent localIntent = new Intent(context, DefinitionActivity.class);
+            localIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_MULTIPLE_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(localIntent);
 
         }else if(intent.getAction().equalsIgnoreCase(ClipMonitor.NOT_RUNNING)) {
             sendNotification(context, "Oops I crashed, touch to restart");
