@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="google_translate_api_key">YOUR API KEY HERE</string>
+    <string name="google_translate_api_key">API KEY HERE</string>
 </resources>
