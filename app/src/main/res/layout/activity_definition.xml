@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:animateLayoutChanges="true"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:gravity="center"
@@ -11,6 +12,7 @@
     android:layout_height="match_parent">
 
     <android.support.v7.widget.CardView
+        android:animateLayoutChanges="true"
         android:id="@+id/card_view"
         android:layout_width="match_parent"
         card_view:cardBackgroundColor="#eeeeee"
@@ -23,6 +25,7 @@
         android:layout_height="wrap_content">
         <RelativeLayout
             android:id="@+id/content_parent"
+            android:animateLayoutChanges="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <ImageButton
@@ -36,6 +39,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <LinearLayout
+                android:animateLayoutChanges="true"
                 android:orientation="vertical"
                 android:id="@+id/content"
                 android:paddingBottom="50dp"
@@ -54,6 +58,7 @@
                 <ScrollView
                     android:layout_weight="1"
                     android:fillViewport="true"
+                    android:animateLayoutChanges="true"
                     android:layout_width="match_parent"
                     android:layout_height="0dp">
                     <TextView
@@ -82,15 +87,16 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_height="wrap_content" />
                 <ScrollView
+                    android:animateLayoutChanges="true"
                     android:layout_weight="1"
                     android:fillViewport="true"
                     android:layout_width="match_parent"
                     android:layout_height="0dp">
                     <TextView
+                        android:visibility="gone"
                         android:textSize="22sp"
                         android:layout_marginTop="5dp"
                         android:textColor="@color/language_content_color"
-                        android:text="Hello, do you understand english?."
                         android:id="@+id/dest_content"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />

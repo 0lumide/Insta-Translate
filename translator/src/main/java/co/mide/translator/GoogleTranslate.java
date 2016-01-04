@@ -8,11 +8,10 @@ import retrofit.http.Path;
 import retrofit.http.Query;
 
 /**
- *
+ *The Google translate api web request interface for retrofit
  */
 public interface GoogleTranslate {
-//    @GET("?key={key}&target={target}&q={phrase}")
-    @GET("https://dl.dropboxusercontent.com/u/66559338/Google-Translate/translated.json")
+    @GET("v2")
     // ?key=INSERT-YOUR-KEY&target=de&q=Hello%20world
     Call<TranslateResult> translate(
             @Query("key") String apiKey,
@@ -20,15 +19,13 @@ public interface GoogleTranslate {
             @Query("q") String phrase
     );
 
-    // /detect?key=INSERT-YOUR-KEY&q=Google%20Translate%20Rocks
-    @GET("detect?key={key}&q={phrase}")
-    String languageDetect(
-            @Path("key") String apiKey,
-            @Path("phrase") String phrase
+    @GET("v2/detect")
+    Call<LangDetectionResult> languageDetect(
+            @Query("key") String apiKey,
+            @Query("q") String phrase
     );
 
-    // /languages?key=INSERT-YOUR-KEY
-    @GET("languages?key={key}")
+    @GET("v2/languages")
     List<String> getSupportedLanguages(
             @Path("key") String apiKey
     );

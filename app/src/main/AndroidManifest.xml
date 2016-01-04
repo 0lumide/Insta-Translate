@@ -36,7 +36,5 @@
             android:excludeFromRecents="true"
             android:label="@string/title_activity_definition"
             android:theme="@style/Theme.Transparent" />
-
     </application>
-
 </manifest>

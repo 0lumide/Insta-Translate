@@ -10,7 +10,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import co.mide.clipbroadcast.ClipMonitor;
 import co.mide.translator.Translator;
 
@@ -54,8 +53,8 @@ public class DefinitionActivity extends Activity {
                 Toast.makeText(DefinitionActivity.this, getString(R.string.translation_copied), Toast.LENGTH_LONG).show();
             }
         });
-
-        translate(sourceTextView.getText().toString());
+        String sourceText = sourceTextView.getText().toString();
+        translate(sourceText);
     }
 
     private void copyTranslationToClipBoard(){
@@ -93,21 +92,17 @@ public class DefinitionActivity extends Activity {
             @Override
             public void translateComplete(String translated) {
                 translatedTextView.setText(translated);
-                loading.setVisibility(View.INVISIBLE);
+                loading.setVisibility(View.GONE);
                 translatedTextView.setVisibility(View.VISIBLE);
             }
 
             public void error(){
                 translatedTextView.setText(getString(R.string.translate_error));
-                loading.setVisibility(View.INVISIBLE);
+                loading.setVisibility(View.GONE);
+                translatedTextView.setTextColor(getResources().getColor(R.color.faint_text_color));
                 translatedTextView.setVisibility(View.VISIBLE);
+                findViewById(R.id.copy_button).setEnabled(false);
             }
         });
-    }
-
-    private boolean isSourceLanguage(String sourceText){
-        //TODO read source language
-        //TODO check is sourceText language is wanted language
-        return true;
     }
 }

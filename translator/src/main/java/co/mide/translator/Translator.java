@@ -17,7 +17,7 @@ import retrofit.Retrofit;
  */
 public class Translator {
     private String key;
-    final String GOOGLE_TRANSLATE_ENDPOINT = "https://www.googleapis.com/language/translate/v2/";
+    final String GOOGLE_TRANSLATE_ENDPOINT = "https://www.googleapis.com/language/translate/";
     private GoogleTranslate translator;
 
     public Translator(String apiKey){
@@ -30,12 +30,14 @@ public class Translator {
         translator = retrofit.create(GoogleTranslate.class);
     }
 
-    public void translate(@NonNull String originalText, @NonNull String iso69, @NonNull final onTranslateComplete callback){
-        Call<TranslateResult> call = translator.translate(key, iso69, originalText);
+    public void translate(@NonNull String originalText, @NonNull String iso639, @NonNull final onTranslateComplete callback){
+        Call<TranslateResult> call = translator.translate(key, iso639, originalText);
         call.enqueue(new Callback<TranslateResult>() {
             @Override
             public void onResponse(Response<TranslateResult> response, Retrofit retrofit) {
                 if(response.body() == null){
+                    System.out.printf("message: %s\n", response.message());
+                    System.out.printf("url: %s\n", response.raw().toString());
                     callback.error();
                     return;
                 }
@@ -50,13 +52,36 @@ public class Translator {
         });
     }
 
+    public void detectLanguage(@NonNull String originalText, @NonNull final onLanguageDetected callback){
+        Call<LangDetectionResult> call = translator.languageDetect(key, originalText);
+        call.enqueue(new Callback<LangDetectionResult>() {
+            @Override
+            public void onResponse(Response<LangDetectionResult> response, Retrofit retrofit) {
+                if(response.body() == null){
+                    System.out.printf("message: %s\n", response.message());
+                    System.out.printf("url: %s\n", response.raw().toString());
+                    callback.error();
+                    return;
+                }
+                callback.languageDetected(response.body().data.detections.get(0).get(0).language);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                t.printStackTrace();
+                System.out.println(t.fillInStackTrace().getMessage());
+                System.out.println("Failure");
+                callback.error();
+            }
+        });
+    }
     /**
-     * Function that returns the name of the Language based off of the iso-69 code
-     * @param iso69 the string that is used to represent languages
+     * Function that returns the name of the Language based off of the iso-639 code
+     * @param iso639 the string that is used to represent languages
      * @return the name of the language
      */
-    public String getLanguageName(String iso69){
-        LanguageAlpha3Code language  = LanguageAlpha3Code.getByCode(iso69);
+    public String getLanguageName(String iso639){
+        LanguageAlpha3Code language  = LanguageAlpha3Code.getByCode(iso639);
         return language.getName();
     }
 
@@ -65,6 +90,20 @@ public class Translator {
      */
     public interface onTranslateComplete{
         void translateComplete(String translated);
+        void error();
+    }
+
+    /**
+     * Interface that contains the language detected complete callback
+     */
+    public interface onLanguageDetected{
+        /**
+         *
+         * @param detectedIso639 This is the language that was detected.
+         *                      It is represented by its iso639-1 code.
+         *                      It could also be null if no language could be detected
+         */
+        void languageDetected(String detectedIso639);
         void error();
     }
 }
