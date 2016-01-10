@@ -13,8 +13,3 @@ public class TranslateResult {
 class TranslationDataResult {
     public ArrayList<Translation> translations = new ArrayList<>();
 }
-
-class Translation {
-    public String translatedText;
-    public String detectedSourceLanguage;
-}

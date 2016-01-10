@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 
 import com.neovisionaries.i18n.*;
 
+import java.util.ArrayList;
+
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
@@ -75,6 +77,31 @@ public class Translator {
             }
         });
     }
+
+    public void getLanguages(@NonNull String iso639, @NonNull final onGetLanguagesComplete callback){
+        Call<LanguagesResult> call = translator.getSupportedLanguages(key, iso639);
+        call.enqueue(new Callback<LanguagesResult>() {
+            @Override
+            public void onResponse(Response<LanguagesResult> response, Retrofit retrofit) {
+                if(response.body() == null){
+                    System.out.printf("message: %s\n", response.message());
+                    System.out.printf("url: %s\n", response.raw().toString());
+                    callback.error();
+                    return;
+                }
+                callback.getLanguageComplete(response.body().data.languages);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                t.printStackTrace();
+                System.out.println(t.fillInStackTrace().getMessage());
+                System.out.println("Failure");
+                callback.error();
+            }
+        });
+    }
+
     /**
      * Function that returns the name of the Language based off of the iso-639 code
      * @param iso639 the string that is used to represent languages
@@ -90,6 +117,14 @@ public class Translator {
      */
     public interface onTranslateComplete{
         void translateComplete(String translated);
+        void error();
+    }
+
+    /**
+     * Interface that contains the getLanguages callback
+     */
+    public interface onGetLanguagesComplete{
+        void getLanguageComplete(ArrayList<Language> languages);
         void error();
     }
 

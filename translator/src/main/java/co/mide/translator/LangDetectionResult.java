@@ -11,11 +11,5 @@ public class LangDetectionResult {
 }
 
 class DetectionDataResult {
-    public ArrayList<ArrayList<Detected>> detections = new ArrayList<>();
-}
-
-class Detected{
-    public String language;
-    public String isReliable;
-    public String confidence;
+    public ArrayList<ArrayList<DetectedLanguage>> detections = new ArrayList<>();
 }

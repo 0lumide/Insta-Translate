@@ -88,7 +88,7 @@ public class DefinitionActivity extends Activity {
         //TODO read destination language
 
         Translator t = new Translator(getString(R.string.google_translate_api_key));
-        t.translate("Poop is Poop", "ja", new Translator.onTranslateComplete() {
+        t.translate(sourceText, "ja", new Translator.onTranslateComplete() {
             @Override
             public void translateComplete(String translated) {
                 translatedTextView.setText(translated);

@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import co.mide.clipbroadcast.ClipMonitor;
 import co.mide.translator.Translator;
@@ -19,6 +20,7 @@ public class BroadcastListener extends BroadcastReceiver {
         if(intent.getAction().equalsIgnoreCase(ClipMonitor.NEW_CLIP)) {
             sendNotification(context, "New Clip");
 
+            Log.e("CLIP", "new clip");
             String sourceText = intent.getStringExtra(ClipMonitor.COPIED_STRING);
             isWantedLanguage(context, sourceText);
 
@@ -32,7 +34,7 @@ public class BroadcastListener extends BroadcastReceiver {
         t.detectLanguage(sourceText, new Translator.onLanguageDetected(){
             @Override
             public void languageDetected(String detectedIso639) {
-                if (detectedIso639.equals("en")){
+                if ("en".equals(detectedIso639)){
                     System.out.println(detectedIso639);
                     //translate
                     Intent localIntent = new Intent(context, DefinitionActivity.class);

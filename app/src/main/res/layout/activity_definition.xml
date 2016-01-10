@@ -52,7 +52,7 @@
                     android:textColor="@color/faint_text_color"
                     android:textSize="16sp"
                     android:text="SPANISH"
-                    android:id="@+id/source_langage"
+                    android:id="@+id/source_language"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
                 <ScrollView

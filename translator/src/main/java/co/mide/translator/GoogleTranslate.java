@@ -26,7 +26,8 @@ public interface GoogleTranslate {
     );
 
     @GET("v2/languages")
-    List<String> getSupportedLanguages(
-            @Path("key") String apiKey
+    Call<LanguagesResult> getSupportedLanguages(
+            @Query("key") String apiKey,
+            @Query("target") String target
     );
 }

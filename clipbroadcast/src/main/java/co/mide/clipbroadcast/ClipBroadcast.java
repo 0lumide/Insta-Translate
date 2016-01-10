@@ -1,26 +1,21 @@
 package co.mide.clipbroadcast;
 
 import android.app.Service;
-import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 
 public class ClipBroadcast extends Service {
+    protected MyBinder binder;
 
     @Override
     public void onCreate(){
         super.onCreate();
-        final ClipboardManager clipboard = ((ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE));
-        clipboard.addPrimaryClipChangedListener(new ClipboardManager.OnPrimaryClipChangedListener() {
-            @Override
-            public void onPrimaryClipChanged() {
-                String clip = clipboard.getPrimaryClip().getItemAt(0).coerceToText(ClipBroadcast.this).toString();
-                if(!clip.isEmpty() && !clipboard.getPrimaryClipDescription().hasMimeType(ClipMonitor.MIME_IGNORE))
-                    sendNewClipBroadcast(clip);
-            }
-        });
+        binder = new MyBinder();
+        new ClipMonitorThread(getApplicationContext(),
+                (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE)).start();
     }
 
     @Override
@@ -38,6 +33,12 @@ public class ClipBroadcast extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return binder;
+    }
+
+    public class MyBinder extends Binder{
+        public ClipBroadcast getService(){
+            return ClipBroadcast.this;
+        }
     }
 }

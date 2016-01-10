@@ -1,38 +1,67 @@
 package co.mide.instatranslate;
 
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.telephony.TelephonyManager;
+//import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.EditText;
 
-import java.util.UUID;
+import org.solovyev.android.views.llm.LinearLayoutManager;
+
+import java.util.ArrayList;
 
 import co.mide.clipbroadcast.ClipMonitor;
+import co.mide.instatranslate.views.EmptyRecyclerView;
+import co.mide.translator.Language;
+import co.mide.translator.Translator;
 
 public class MainActivity extends AppCompatActivity {
+    ProgressDialog dialog;
+    EmptyRecyclerView recyclerView;
+    RecyclerAdapter recyclerViewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        new ClipMonitor(this).start();
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        final TelephonyManager tm = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+        recyclerViewAdapter = new RecyclerAdapter(this);
+        recyclerView = (EmptyRecyclerView)findViewById(R.id.recycler_view);
+        recyclerView.setEmptyView(findViewById(R.id.empty_view));
 
-        final String tmDevice, tmSerial, androidId;
-        tmDevice = "" + tm.getDeviceId();
-        tmSerial = "" + tm.getSimSerialNumber();
-        androidId = "" + android.provider.Settings.Secure.getString(getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+//        final LinearLayoutManager layoutManager = new org.solovyev.android.views.llm.LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        recyclerView.setLayoutManager(layoutManager);
 
-        UUID deviceUuid = new UUID(androidId.hashCode(), ((long) tmDevice.hashCode() << 32) | tmSerial.hashCode());
-        String deviceId = deviceUuid.toString();
-        ((EditText)findViewById(R.id.edit_text)).setText(deviceId);
+        recyclerView.setAdapter(recyclerViewAdapter);
+        dialog = ProgressDialog.show(this, "",
+                getString(R.string.please_wait), true);
+        Translator t = new Translator(getString(R.string.google_translate_api_key));
+        t.getLanguages("en", new Translator.onGetLanguagesComplete() {
+            @Override
+            public void getLanguageComplete(ArrayList<Language> languages) {
+                for (int i = 0; i < languages.size(); i++)
+                    System.out.printf("%s: %s\n", languages.get(i).language, languages.get(i).name);
+                dialog.dismiss();
+            }
+
+            @Override
+            public void error() {
+                System.out.println("Error");
+                dialog.dismiss();
+            }
+        });
     }
 
-    public void startService(View v){
-        new ClipMonitor(this).start();
+    @Override
+    public void onPause(){
+        super.onPause();
+        recyclerViewAdapter.saveData();
     }
 
     public void launch(View v){

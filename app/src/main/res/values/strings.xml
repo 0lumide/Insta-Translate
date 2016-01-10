@@ -3,4 +3,8 @@
     <string name="title_activity_definition">DefinitionActivity</string>
     <string name="translation_copied">Copied to Clipboard</string>
     <string name="translate_error">Oops an error occurred, try again later</string>
+    <string name="please_wait">One moment, please wait&#8230;</string>
+    <string name="arrow_description">Arrow showing destination language</string>
+    <string name="discard">Discard this language pair configuration</string>
+    <string name="empty_scroll_view">You have no language pair. Add a new language pair</string>
 </resources>

@@ -1,27 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:orientation="vertical"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:padding="0dp"
+    android:layout_margin="0dp"
+    android:background="#e0e0e0"
     tools:context="co.mide.instatranslate.MainActivity">
 
-    <Button
-        android:onClick="startService"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start Service" />
-    <TextView
-        android:text="Launch"
-        android:onClick="launch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <EditText
-        android:id="@+id/edit_text"
+    <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+    <RelativeLayout
+        android:padding="0dp"
+        android:layout_margin="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <co.mide.instatranslate.views.EmptyRecyclerView
+            android:id="@+id/recycler_view"
+            android:scrollbars="vertical"
+            android:padding="0dp"
+            android:overScrollMode="never"
+            android:layout_margin="0dp"
+            android:layout_centerInParent="true"
+            android:animateLayoutChanges="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:id="@+id/empty_view"
+            android:visibility="gone"
+            android:layout_centerInParent="true"
+            android:animateLayoutChanges="true"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:layout_width="200dp"
+                android:id="@+id/speech_bubble_view"
+                android:src="@drawable/speech_bubble"
+                android:layout_marginBottom="10dp"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:gravity="center_horizontal"
+                android:alpha="0.8"
+                android:layout_marginBottom="70dp"
+                android:textSize="17sp"
+                android:layout_width="wrap_content"
+                android:paddingLeft="50dp"
+                android:paddingRight="50dp"
+                android:text="@string/empty_scroll_view"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/languages_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+        </LinearLayout>
+        <TextView
+            android:text="Launch"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:onClick="launch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:clickable="true"
+            fab:fabSize="normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:padding="0dp"
+            android:layout_margin="@dimen/fab_margin"
+            android:src="@drawable/ic_add_white_18dp" />
+    </RelativeLayout>
 </LinearLayout>
