@@ -2,7 +2,9 @@ package co.mide.instatranslate;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +34,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         adapterData = new ArrayList<>();
         sharedPreferences = context.getSharedPreferences(LANG_PAIRS, Context.MODE_PRIVATE);
         try {
+            //Should prop just use google GSON
             JSONObject jsonObject = new JSONObject(sharedPreferences.getString(LANG_PAIRS_JSON, DEFAULT_JSON));
             JSONArray jsonArray = jsonObject.getJSONArray(LANG_PAIRS);
             for(int i = 0; i < jsonArray.length(); i++){
@@ -39,6 +42,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                 String sourceLang = jObject.getString(SOURCE_LANG);
                 String destLang = jObject.getString(DEST_LANG);
                 adapterData.add(new LanguagePair(sourceLang, destLang));
+                Log.e("add", "add: "+i);
             }
             adapterData.add(new LanguagePair("Spanish", "English"));
         }catch (JSONException e){
@@ -46,10 +50,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         }
     }
 
+    public void remove(int index){
+        adapterData.remove(index);
+        notifyItemRemoved(index);
+    }
+
     @Override
     public RecyclerAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // create a new view
-        View v = LayoutInflater.from(parent.getContext())
+        CardView v = (CardView)LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.language_view, parent, false);
         // set the view's size, margins, padding and layout parameters
         return new RecyclerAdapter.ViewHolder(v);
@@ -106,9 +115,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                 jObject.put(SOURCE_LANG, languagePair.getSourceLanguage());
                 jObject.put(DEST_LANG, languagePair.getDestLanguage());
                 jsonArray.put(jObject);
+                Log.e("size", "size: "+i);
             }
             jsonObject.put(LANG_PAIRS, jsonArray);
-            sharedPreferences.edit().putString(LANG_PAIRS, jsonObject.toString()).apply();
+            Log.e("save","ssave");
+            sharedPreferences.edit().putString(LANG_PAIRS_JSON, jsonObject.toString()).apply();
         }catch (JSONException e){
             e.printStackTrace();
         }

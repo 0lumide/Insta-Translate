@@ -72,7 +72,7 @@ public class ClipMonitorThread extends Thread{
         }
 
         if (clipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
-            clip = clipboard.getPrimaryClip().getItemAt(0).toString();
+            clip = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
         }else if (clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML)) {
             clip = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
         }

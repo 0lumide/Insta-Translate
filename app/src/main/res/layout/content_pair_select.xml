@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_margin="0dp"
+    android:padding="0dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/shadow_holder"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/shadow"
+        android:orientation="vertical"
+        android:paddingBottom="60dp"
+        android:paddingTop="10dp"
+        android:gravity="center"
+        android:layout_margin="0dp"
+        android:layout_height="@dimen/select_pair_view_height">
+        <include layout="@layout/language_chooser"/>
+    </LinearLayout>
+</RelativeLayout>
