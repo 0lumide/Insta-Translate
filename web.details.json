@@ -1,13 +1,12 @@
 {
     "title": "Insta Translate",
     "description": "Android translate app",
-    "details": "This is an android app that lets you get translations instantly without having to leave the app with the source text.
-",
+    "details": "This is an android app that lets you get translations instantly without having to leave the app with the source text.",
     "destinationLink": "https://play.google.com/store/apps/details?id=co.mide.instatranslate",
     "iconImage": "img/icon.png",
     "media": [
-        "img/Screen1.jpg",
-        "img/Screen2.jpg"
+        "img/screen1.png",
+        "img/screen2.png"
     ],
     "ignore": false
 }
