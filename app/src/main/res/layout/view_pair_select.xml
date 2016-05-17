@@ -8,6 +8,7 @@
         android:id="@+id/fade_view"
         android:visibility="invisible"
         android:background="#55555555"
+        android:hapticFeedbackEnabled="false"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
     <io.codetail.widget.RevealLinearLayout

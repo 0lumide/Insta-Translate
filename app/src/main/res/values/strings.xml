@@ -8,4 +8,6 @@
     <string name="discard">Discard this language pair configuration</string>
     <string name="empty_scroll_view">You have no language pair. Add a new language pair</string>
     <string name="title_activity_pair_select">PairSelect</string>
+    <string name="main_menu_time">Change time</string>
+    <string name="translation_found">Translation found</string>
 </resources>

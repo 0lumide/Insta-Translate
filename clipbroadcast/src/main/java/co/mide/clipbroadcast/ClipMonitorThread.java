@@ -55,7 +55,7 @@ public class ClipMonitorThread extends Thread{
         while(!stopped){
             checkClip();
             try{
-                Thread.sleep(1000);
+                Thread.sleep(3000);
             }catch (InterruptedException e){
                 //Do nothing
             }
@@ -71,10 +71,14 @@ public class ClipMonitorThread extends Thread{
             return;
         }
 
-        if (clipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
-            clip = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
-        }else if (clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML)) {
-            clip = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
+        try{
+            if (clipboard.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+                clip = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
+            }else if (clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML)) {
+                clip = clipboard.getPrimaryClip().getItemAt(0).getText().toString();
+            }
+        }catch (NullPointerException e){
+            e.printStackTrace();
         }
 
         if((lastClip != null) && lastClip.equals(""))

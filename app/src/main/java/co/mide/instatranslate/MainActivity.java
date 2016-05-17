@@ -1,18 +1,19 @@
 package co.mide.instatranslate;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -24,6 +25,8 @@ import co.mide.translator.Translator;
 import io.codetail.animation.SupportAnimator;
 import io.codetail.animation.ViewAnimationUtils;
 import android.support.design.widget.CoordinatorLayout;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Spinner;
 
 import com.google.gson.Gson;
@@ -44,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     static final String LANGUAGES = "languages";
     static final String LAST_SAVED_LANGUAGES = "languages_last_saved";
     private SharedPreferences sharedPreferences;
+    ArrayList<Language> languageList;
+    View.OnTouchListener ignoreTouchListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,37 +71,57 @@ public class MainActivity extends AppCompatActivity {
         pairSelectView = (CoordinatorLayout)findViewById(R.id.pair_select);
         fabAdd = (FloatingActionButton)findViewById(R.id.fab_add);
         fabAdd.setRippleColor(ContextCompat.getColor(this, R.color.lang_pair_chooser_background));
+
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                animateButton(fabAdd, pairSelectView);
+                populateSpinners(languageList);
+                animateButton(fabAdd, findViewById(R.id.shadow_holder));
                 showFade(findViewById(R.id.fade_view));
             }
         });
 
+        fabDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recyclerViewAdapter.add((Language)sourceSpinner.getSelectedItem(),
+                        (Language)destSpinner.getSelectedItem());
+                onBackPressed();
+            }
+        });
+
+        ignoreTouchListener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        };
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-//        linearLayoutManager.
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(recyclerViewAdapter);
 
         if(isLanguagesUpToDate())
-            populateSpinners(getLanguages());
+            languageList = getLanguages();
         else
             updateLanguages();
     }
 
     @Override
     public void onBackPressed(){
-        if(pairSelectView.getVisibility() != View.VISIBLE)
+        View view = findViewById(R.id.fade_view);
+        if(view.getVisibility() != View.VISIBLE)
             super.onBackPressed();
-        else
+        else if(!(view.getAnimation().hasStarted() && !view.getAnimation().hasEnded())) {
+            view.setOnTouchListener(null);
+            view.setOnClickListener(null);
             hideLangPairSelect();
+        }
     }
 
     private ArrayList<Language> getLanguages(){
         String languagesString = sharedPreferences.getString(LANGUAGES, null);
         //I have no idea what this TypeToken stuff is
-        return (new Gson()).fromJson(languagesString, new TypeToken<ArrayList<String>>() {}.getType());
+        return (new Gson()).fromJson(languagesString, new TypeToken<ArrayList<Language>>() {}.getType());
     }
 
     private boolean isLanguagesUpToDate(){
@@ -113,17 +138,21 @@ public class MainActivity extends AppCompatActivity {
         t.getLanguages("en", new Translator.onGetLanguagesComplete() {
             @Override
             public void getLanguageComplete(ArrayList<Language> languages) {
-                populateSpinners(languages);
+                languageList = languages;
                 sharedPreferences.edit().putString(LANGUAGES, (new Gson()).toJson(languages)).apply();
                 for (int i = 0; i < languages.size(); i++)
                     System.out.printf("%s: %s\n", languages.get(i).language, languages.get(i).name);
                 dialog.dismiss();
+                sharedPreferences.edit().putLong(LAST_SAVED_LANGUAGES, System.currentTimeMillis()).apply();
             }
 
             @Override
-            public void error() {
-                System.out.println("Error");
+            public void error(String message) {
+                System.err.printf("Error: %s\n", message);
+                //TODO show dialog saying error with connection
                 fabAdd.setClickable(false);
+                fabAdd.setAlpha(0.3f);
+                ViewCompat.setElevation(fabAdd, 0f);
                 fabAdd.setBackgroundTintList(ColorStateList.valueOf(
                         ContextCompat.getColor(MainActivity.this, R.color.disabled_fab)));
                 dialog.dismiss();
@@ -131,9 +160,31 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return false;
+    }
+
     private void populateSpinners(ArrayList<Language> languages){
-        sourceSpinner.setAdapter(new CustomSpinnerAdapter(this, languages));
         destSpinner.setAdapter(new CustomSpinnerAdapter(this, languages));
+        ArrayList<Language> sourceLanguages = new ArrayList<>(languages.size());
+        ArrayList<RecyclerAdapter.LanguagePair> voidedLanguages = new ArrayList<>(recyclerViewAdapter.getItemCount());
+        for(int i = 0; i < recyclerViewAdapter.getItemCount(); i++){
+            voidedLanguages.add(recyclerViewAdapter.getItem(i));
+        }
+        for(int i = 0; i < languages.size(); i++){
+            sourceLanguages.add(languages.get(i));
+            for(int j = 0; j < voidedLanguages.size(); j++){
+                if(languages.get(i).name.equals(voidedLanguages.get(j).getSourceLanguage().name)){
+                    voidedLanguages.remove(j);
+                    sourceLanguages.remove(sourceLanguages.size()-1);
+                    break;
+                }
+            }
+        }
+        sourceSpinner.setAdapter(new CustomSpinnerAdapter(this, sourceLanguages));
     }
 
     private ItemTouchHelper initSwipe(){
@@ -145,7 +196,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                //Remove swiped item from list and notify the RecyclerView
                 ((RecyclerAdapter)recyclerView.getAdapter()).remove(viewHolder.getAdapterPosition());
             }
         };
@@ -154,72 +204,96 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showFade(View v){
-        v.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        });
-        v.setAlpha(0);
+        v.setOnTouchListener(ignoreTouchListener);
+        Animation anim  = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+        anim.setDuration(700);
+        anim.setFillEnabled(true);
+        anim.setFillAfter(true);
         v.setVisibility(View.VISIBLE);
-        v.animate().alpha(1.0f).setDuration(700).start();
+        v.setAnimation(anim);
+        v.startAnimation(anim);
     }
 
-    private void hideFade(View v){
-        v.setAlpha(1);
-        v.animate().alpha(0f).setDuration(700).start();
-        v.setVisibility(View.INVISIBLE);
+    private void hideFade(final View v){
+        Animation anim  = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
+        anim.setDuration(700);
+        anim.setFillEnabled(true);
+        anim.setFillAfter(true);
+        anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                v.setVisibility(View.INVISIBLE);
+                v.clearAnimation();
+            }
+        });
+        v.startAnimation(anim);
     }
 
     public void hideLangPairSelect(){
         fabDone.hide();
         hideFade(findViewById(R.id.fade_view));
-        animateUnReveal((int) (fabAdd.getX() + 0.5 * fabAdd.getWidth()),
-                (int) (fabAdd.getY() + 0.5 * fabAdd.getHeight()), fabAdd);
+        View dest = findViewById(R.id.shadow_holder);
+        float newX = 0.5f * dest.getWidth();
+        float newY = dest.getY() + (0.5f * (getResources().getDimension(R.dimen.select_pair_view_height)));
+
+        animateUnReveal((int) newX, (int) newY, fabAdd);
     }
 
     private void animateButton(final FloatingActionButton mFloatingButton, View dest) {
-        float newX = (0.5f * (dest.getWidth() - mFloatingButton.getHeight()));
-        float newY = (0.5f * (getResources().getDimension(R.dimen.select_pair_view_height) - mFloatingButton.getHeight()));
 
         mFloatingButton.setBackgroundTintList(ColorStateList.valueOf(
                 ContextCompat.getColor(this, R.color.lang_pair_chooser_background)));
-        mFloatingButton.animate().translationX(-newX).translationY(-newY)
-                .setDuration(200).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                animateReveal((int) (mFloatingButton.getX() + 0.5 * mFloatingButton.getWidth()),
-                        (int) (mFloatingButton.getY() + 0.5 * mFloatingButton.getHeight()), mFloatingButton);
-            }
 
-            @Override
-            public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
-            }
-        });
+        final float newX = (0.5f * (dest.getWidth() - mFloatingButton.getHeight()));
+        final float newY = (0.5f * (getResources().getDimension(R.dimen.select_pair_view_height) - mFloatingButton.getHeight()));
+        ArcTranslateAnimation anim = new ArcTranslateAnimation(0, -newX, 0, -newY);
+        anim.setDuration(1000);
+        anim.setFillEnabled(true);
+        anim.setFillAfter(true);
+        mFloatingButton.clearFocus();
+        mFloatingButton.clearAnimation();
+        mFloatingButton.setVisibility(View.VISIBLE);
+        mFloatingButton.invalidate();
+
+        float x = mFloatingButton.getX() + 0.5f*mFloatingButton.getWidth();
+        float y = dest.getY() + getResources().getDimension(R.dimen.select_pair_view_height) - 0.5f*mFloatingButton.getHeight();
+        animateReveal((int) x, (int) y, mFloatingButton);
+
+//        new Handler().postDelayed(new Runnable() {
+//            public void run() {
+//                View dest = findViewById(R.id.shadow_holder);
+//                float x = 0.5f * dest.getWidth();
+//                float y = dest.getY() + (0.5f * (getResources().getDimension(R.dimen.select_pair_view_height)));
+//                animateReveal((int) x, (int) y, mFloatingButton);
+//            }
+//        }, anim.getDuration());
+//
+//        mFloatingButton.startAnimation(anim);
     }
 
-    private void animateShowButton(final FloatingActionButton mFloatingButton) {
+    private void animateShowButton(final FloatingActionButton mFloatingButton, View dest) {
         mFloatingButton.setBackgroundTintList(ColorStateList.valueOf(
                 ContextCompat.getColor(this, R.color.colorAccent)));
-        mFloatingButton.animate().translationX(0).translationY(0)
-                .setDuration(200).setListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-            }
 
-            @Override
-            public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
-            }
-        });
+        float newX = (0.5f * (dest.getWidth() - mFloatingButton.getHeight()));
+        float newY = (0.5f * (getResources().getDimension(R.dimen.select_pair_view_height) - mFloatingButton.getHeight()));
+
+        ArcTranslateAnimation anim = new ArcTranslateAnimation(-newX, 0, -newY, 0);
+        anim.setDuration(200);
+        anim.setFillAfter(true);
+        mFloatingButton.startAnimation(anim);
     }
 
     private void animateUnReveal(int cx, int cy, final FloatingActionButton mFloatingButton) {
         final View myView = findViewById(R.id.pair_select);
-
         // get the final radius for the clipping circle
         float finalRadius = hypo(myView.getWidth(), myView.getHeight());
 
@@ -235,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
             public void onAnimationEnd() {
                 myView.setVisibility(View.INVISIBLE);
                 mFloatingButton.setVisibility(View.VISIBLE);
-                animateShowButton(mFloatingButton);
+                animateShowButton(mFloatingButton, pairSelectView);
             }
 
             @Override
@@ -267,6 +341,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationEnd() {
                 ((FloatingActionButton)findViewById(R.id.fab_done)).show();
+                View view = findViewById(R.id.fade_view);
+                view.setOnTouchListener(null);
+                view.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        return true;
+                    }
+                });
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onBackPressed();
+                    }
+                });
+                findViewById(R.id.shadow_holder).setOnTouchListener(ignoreTouchListener);
             }
 
             @Override

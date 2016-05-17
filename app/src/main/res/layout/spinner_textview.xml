@@ -11,4 +11,4 @@
     android:layout_gravity="start|center"
     android:singleLine="true"
     android:textColor="@color/language_content_color"
-    android:text="Chinese (Traditional)"/>
+    android:text="Zulu"/>

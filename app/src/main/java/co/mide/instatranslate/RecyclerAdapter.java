@@ -4,17 +4,20 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+
+import co.mide.translator.Language;
 
 /**
  * Adapter for the recycler view
@@ -22,36 +25,57 @@ import java.util.ArrayList;
  */
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
-    private ArrayList<LanguagePair> adapterData;
-    static final String DEFAULT_JSON = "{\"languagePairs\": []}";
-    static final String SOURCE_LANG = "sourceLanguage";
-    static final String DEST_LANG = "destLanguage";
+    private static ArrayList<LanguagePair> adapterData;
     static final String LANG_PAIRS = "languagePairs";
     static final String LANG_PAIRS_JSON = "language_pairs_json";
-    private SharedPreferences sharedPreferences;
+    private static SharedPreferences sharedPreferences;
+    Context context;
 
     public RecyclerAdapter(Context context) {
-        adapterData = new ArrayList<>();
-        sharedPreferences = context.getSharedPreferences(LANG_PAIRS, Context.MODE_PRIVATE);
-        try {
-            //Should prop just use google GSON
-            JSONObject jsonObject = new JSONObject(sharedPreferences.getString(LANG_PAIRS_JSON, DEFAULT_JSON));
-            JSONArray jsonArray = jsonObject.getJSONArray(LANG_PAIRS);
-            for(int i = 0; i < jsonArray.length(); i++){
-                JSONObject jObject = jsonArray.getJSONObject(i);
-                String sourceLang = jObject.getString(SOURCE_LANG);
-                String destLang = jObject.getString(DEST_LANG);
-                adapterData.add(new LanguagePair(sourceLang, destLang));
-                Log.e("add", "add: "+i);
+        this.context = context.getApplicationContext();
+        sharedPreferences = this.context.getSharedPreferences(LANG_PAIRS, Context.MODE_PRIVATE);
+        adapterData = getLanguagePairs(context);
+    }
+
+    public static ArrayList<LanguagePair> getLanguagePairs(Context context){
+        if(adapterData != null)
+            return adapterData;
+        if(sharedPreferences == null)
+            sharedPreferences = context.getApplicationContext().getSharedPreferences(LANG_PAIRS, Context.MODE_PRIVATE);
+        adapterData = (new Gson()).fromJson(sharedPreferences.getString(LANG_PAIRS_JSON, null), new TypeToken<ArrayList<LanguagePair>>() {}.getType());
+        if(adapterData == null)
+            adapterData = new ArrayList<>();
+        return adapterData;
+    }
+
+    public void add(Language source, Language dest){
+        adapterData.add(new LanguagePair(source, dest));
+        saveData();
+        this.notifyItemInserted(adapterData.size() - 1);
+    }
+
+    public void itemDismissed(final int position, View rowView){
+        Animation anim = AnimationUtils.loadAnimation(context,
+                android.R.anim.slide_out_right);
+        anim.setDuration(200);
+        anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {}
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                remove(position);
             }
-            adapterData.add(new LanguagePair("Spanish", "English"));
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {}
+        });
+        rowView.startAnimation(anim);
     }
 
     public void remove(int index){
         adapterData.remove(index);
+        saveData();
         notifyItemRemoved(index);
     }
 
@@ -65,9 +89,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.destLang.setText(adapterData.get(position).getDestLanguage());
-        holder.sourceLang.setText(adapterData.get(position).getSourceLanguage());
+    public void onBindViewHolder(final ViewHolder holder, int position) {
+        holder.destLang.setText(adapterData.get(position).getDestLanguage().name);
+        holder.dismissImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                itemDismissed(holder.getAdapterPosition(), holder.itemView);
+            }
+        });
+        holder.sourceLang.setText(adapterData.get(position).getSourceLanguage().name);
     }
 
     @Override
@@ -75,13 +105,19 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         return adapterData.size();
     }
 
+    public LanguagePair getItem(int index) {
+        return adapterData.get(index);
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder{
         public TextView sourceLang;
         public TextView destLang;
         public boolean isEmptyView;
+        public ImageButton dismissImageButton;
 
         public ViewHolder(View view){
             super(view);
+            dismissImageButton = (ImageButton)view.findViewById(R.id.dismiss_image_button);
             sourceLang = (TextView)view.findViewById(R.id.source_language_text_view);
             destLang = (TextView)view.findViewById(R.id.dest_language_text_view);
             isEmptyView = (destLang == null);
@@ -89,39 +125,23 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     }
 
     public static class LanguagePair{
-        private String sourceLanguage, destLanguage;
+        private Language sourceLanguage, destLanguage;
 
-        public LanguagePair(String source, String dest){
+        public LanguagePair(Language source, Language dest){
             sourceLanguage = source;
             destLanguage = dest;
         }
 
-        public String getSourceLanguage(){
+        public Language getSourceLanguage(){
             return sourceLanguage;
         }
 
-        public  String getDestLanguage(){
+        public  Language getDestLanguage(){
             return destLanguage;
         }
     }
 
     public void saveData(){
-        JSONObject jsonObject = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-        try {
-            for(int i = 0; i < adapterData.size(); i++){
-                LanguagePair languagePair = adapterData.get(i);
-                JSONObject jObject = new JSONObject();
-                jObject.put(SOURCE_LANG, languagePair.getSourceLanguage());
-                jObject.put(DEST_LANG, languagePair.getDestLanguage());
-                jsonArray.put(jObject);
-                Log.e("size", "size: "+i);
-            }
-            jsonObject.put(LANG_PAIRS, jsonArray);
-            Log.e("save","ssave");
-            sharedPreferences.edit().putString(LANG_PAIRS_JSON, jsonObject.toString()).apply();
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
+        sharedPreferences.edit().putString(LANG_PAIRS_JSON, (new Gson()).toJson(adapterData)).apply();
     }
 }

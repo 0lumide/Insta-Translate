@@ -1,16 +1,14 @@
 package co.mide.translator;
 
 import android.support.annotation.NonNull;
-
 import com.neovisionaries.i18n.*;
-
 import java.util.ArrayList;
-
-import retrofit.Call;
-import retrofit.Callback;
-import retrofit.GsonConverterFactory;
-import retrofit.Response;
-import retrofit.Retrofit;
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 /**
  * Public facing class that further abstracts the inner workings of the library
@@ -25,6 +23,7 @@ public class Translator {
     public Translator(String apiKey){
         this.key = apiKey;
         Retrofit retrofit = new Retrofit.Builder()
+                .client(new OkHttpClient())
                 .baseUrl(GOOGLE_TRANSLATE_ENDPOINT)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -36,20 +35,20 @@ public class Translator {
         Call<TranslateResult> call = translator.translate(key, iso639, originalText);
         call.enqueue(new Callback<TranslateResult>() {
             @Override
-            public void onResponse(Response<TranslateResult> response, Retrofit retrofit) {
+            public void onResponse(Call<TranslateResult> call, Response<TranslateResult> response) {
                 if(response.body() == null){
-                    System.out.printf("message: %s\n", response.message());
-                    System.out.printf("url: %s\n", response.raw().toString());
-                    callback.error();
+                    System.err.printf("message: %s\n", response.message());
+                    System.err.printf("url: %s\n", response.raw().toString());
+                    callback.error(response.message());
                     return;
                 }
                 callback.translateComplete(response.body().data.translations.get(0).translatedText);
             }
 
             @Override
-            public void onFailure(Throwable t) {
-                System.out.println("Failure");
-                callback.error();
+            public void onFailure(Call<TranslateResult> call, Throwable t) {
+                t.printStackTrace();
+                callback.error(t.getMessage());
             }
         });
     }
@@ -58,22 +57,20 @@ public class Translator {
         Call<LangDetectionResult> call = translator.languageDetect(key, originalText);
         call.enqueue(new Callback<LangDetectionResult>() {
             @Override
-            public void onResponse(Response<LangDetectionResult> response, Retrofit retrofit) {
+            public void onResponse(Call<LangDetectionResult> call, Response<LangDetectionResult> response) {
                 if(response.body() == null){
                     System.out.printf("message: %s\n", response.message());
                     System.out.printf("url: %s\n", response.raw().toString());
-                    callback.error();
+                    callback.error(response.message());
                     return;
                 }
                 callback.languageDetected(response.body().data.detections.get(0).get(0).language);
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<LangDetectionResult> call, Throwable t) {
                 t.printStackTrace();
-                System.out.println(t.fillInStackTrace().getMessage());
-                System.out.println("Failure");
-                callback.error();
+                callback.error(t.getMessage());
             }
         });
     }
@@ -82,22 +79,20 @@ public class Translator {
         Call<LanguagesResult> call = translator.getSupportedLanguages(key, iso639);
         call.enqueue(new Callback<LanguagesResult>() {
             @Override
-            public void onResponse(Response<LanguagesResult> response, Retrofit retrofit) {
+            public void onResponse(Call<LanguagesResult> call, Response<LanguagesResult> response) {
                 if(response.body() == null){
-                    System.out.printf("message: %s\n", response.message());
-                    System.out.printf("url: %s\n", response.raw().toString());
-                    callback.error();
+                    System.err.printf("message: %s\n", response.message());
+                    System.err.printf("url: %s\n", response.raw().toString());
+                    callback.error(response.message());
                     return;
                 }
                 callback.getLanguageComplete(response.body().data.languages);
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(Call<LanguagesResult> call, Throwable t) {
                 t.printStackTrace();
-                System.out.println(t.fillInStackTrace().getMessage());
-                System.out.println("Failure");
-                callback.error();
+                callback.error(t.getMessage());
             }
         });
     }
@@ -117,7 +112,7 @@ public class Translator {
      */
     public interface onTranslateComplete{
         void translateComplete(String translated);
-        void error();
+        void error(String message);
     }
 
     /**
@@ -125,7 +120,7 @@ public class Translator {
      */
     public interface onGetLanguagesComplete{
         void getLanguageComplete(ArrayList<Language> languages);
-        void error();
+        void error(String message);
     }
 
     /**
@@ -139,6 +134,6 @@ public class Translator {
          *                      It could also be null if no language could be detected
          */
         void languageDetected(String detectedIso639);
-        void error();
+        void error(String message);
     }
 }

@@ -16,12 +16,16 @@ import co.mide.translator.Translator;
 public class DefinitionActivity extends Activity {
     private TextView translatedTextView;
     private View loading;
+    private String sourceIso;
+    private String destIso;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_definition);
 
         TextView sourceTextView = (TextView)findViewById(R.id.source_content);
+        TextView sourceLangTextView = (TextView)findViewById(R.id.source_language);
+        TextView destLangTextView = (TextView)findViewById(R.id.dest_langage);
         translatedTextView = (TextView)findViewById(R.id.dest_content);
         View cardView = findViewById(R.id.card_view);
         loading = findViewById(R.id.loading);
@@ -45,6 +49,11 @@ public class DefinitionActivity extends Activity {
             }
         });
         sourceTextView.setText(getIntent().getStringExtra(ClipMonitor.COPIED_STRING));
+        sourceLangTextView.setText(getIntent().getStringExtra("SOURCE_LANG_NAME"));
+        destLangTextView.setText(getIntent().getStringExtra("DEST_LANG_NAME"));
+
+        destIso = getIntent().getStringExtra("DEST_LANG");
+        sourceIso = getIntent().getStringExtra("SOURCE_LANG");
 
         findViewById(R.id.copy_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,7 +63,7 @@ public class DefinitionActivity extends Activity {
             }
         });
         String sourceText = sourceTextView.getText().toString();
-        translate(sourceText);
+        translate(sourceText, destIso);
     }
 
     private void copyTranslationToClipBoard(){
@@ -84,11 +93,11 @@ public class DefinitionActivity extends Activity {
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     }
 
-    private void translate(String sourceText){
+    private void translate(String sourceText, final String destIso){
         //TODO read destination language
 
         Translator t = new Translator(getString(R.string.google_translate_api_key));
-        t.translate(sourceText, "ja", new Translator.onTranslateComplete() {
+        t.translate(sourceText, destIso, new Translator.onTranslateComplete() {
             @Override
             public void translateComplete(String translated) {
                 translatedTextView.setText(translated);
@@ -96,7 +105,7 @@ public class DefinitionActivity extends Activity {
                 translatedTextView.setVisibility(View.VISIBLE);
             }
 
-            public void error(){
+            public void error(String message){
                 translatedTextView.setText(getString(R.string.translate_error));
                 loading.setVisibility(View.GONE);
                 translatedTextView.setTextColor(getResources().getColor(R.color.faint_text_color));

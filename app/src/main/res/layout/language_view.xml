@@ -45,6 +45,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"/>
         <ImageButton
+            android:id="@+id/dismiss_image_button"
             android:contentDescription="@string/discard"
             android:padding="10dp"
             android:layout_margin="0dp"

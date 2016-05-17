@@ -46,7 +46,7 @@ public class CustomSpinnerAdapter extends BaseAdapter{
     }
 
     @Override
-    public View getItem(int position){
-        return null;//getView(position, null, null);
+    public Object getItem(int position){
+        return languages.get(position);
     }
 }
