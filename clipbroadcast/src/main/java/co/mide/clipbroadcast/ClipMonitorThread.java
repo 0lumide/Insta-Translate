@@ -7,13 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.util.Log;
 
-import co.mide.clipbroadcast.ClipBroadcast.MyBinder;
+import co.mide.clipbroadcast.ClipBroadcastService.MyBinder;
 
 public class ClipMonitorThread extends Thread{
     protected boolean stopped;
     protected Context context;
-    protected ClipBroadcast clipBroadcast;
+    protected ClipBroadcastService clipBroadcast;
     protected boolean mBound;
     protected ClipboardManager clipboard;
     private String lastClip = "";
@@ -31,6 +32,7 @@ public class ClipMonitorThread extends Thread{
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
+            stopped = true;
         }
     };
 
@@ -41,15 +43,13 @@ public class ClipMonitorThread extends Thread{
     public void initialize(Context context, ClipboardManager clipboard){
         this.context = context.getApplicationContext();
         this.clipboard = clipboard;
-        Intent intent = new Intent(context, ClipBroadcast.class);
+        Intent intent = new Intent(context, ClipBroadcastService.class);
         context.bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     public void run(){
-        if(context == null)
-            throw new NullPointerException("Context not set");
-        Intent intent = new Intent(context, ClipBroadcast.class);
+        Intent intent = new Intent(context, ClipBroadcastService.class);
         context.startService(intent);
 
         while(!stopped){
@@ -57,7 +57,7 @@ public class ClipMonitorThread extends Thread{
             try{
                 Thread.sleep(3000);
             }catch (InterruptedException e){
-                //Do nothing
+                Log.i(ClipMonitor.class.getName(), "Thread interrupted");
             }
         }
     }

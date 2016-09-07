@@ -15,7 +15,7 @@ public class ClipMonitor {
     }
 
     public void start(){
-        Intent intent = new Intent(context, ClipBroadcast.class);
+        Intent intent = new Intent(context, ClipBroadcastService.class);
         context.startService(intent);
     }
 }
