@@ -1,6 +1,9 @@
 package co.mide.translator;
 
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.text.Html;
+
 import com.neovisionaries.i18n.*;
 import java.util.ArrayList;
 import okhttp3.OkHttpClient;
@@ -43,7 +46,7 @@ public class Translator {
                     callback.error(response.message());
                     return;
                 }
-                callback.translateComplete(response.body().data.translations.get(0).translatedText);
+                callback.translateComplete(htmlDecode(response.body().data.translations.get(0).translatedText));
             }
 
             @Override
@@ -74,6 +77,14 @@ public class Translator {
                 callback.error(t.getMessage());
             }
         });
+    }
+
+    private String htmlDecode(String string) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            return Html.fromHtml(string, Html.FROM_HTML_MODE_LEGACY).toString();
+        } else {
+            return Html.fromHtml(string).toString();
+        }
     }
 
     public void getLanguages(@NonNull String iso639, @NonNull final onGetLanguagesComplete callback){

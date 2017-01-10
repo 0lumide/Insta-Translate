@@ -16,7 +16,6 @@ public class ClipMonitor {
 
     public void start(){
         Intent intent = new Intent(context, ClipBroadcastService.class);
-        context.getSystemService(Context.ALARM_SERVICE);
         context.startService(intent);
     }
 }
