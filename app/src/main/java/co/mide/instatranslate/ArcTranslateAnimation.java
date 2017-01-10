@@ -9,7 +9,7 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
 // http://www.math.ubc.ca/~cass/gfx/bezier.html
-
+@SuppressWarnings("unused")
 public class ArcTranslateAnimation extends Animation {
     private int mFromXType = ABSOLUTE;
     private int mToXType = ABSOLUTE;
@@ -22,11 +22,6 @@ public class ArcTranslateAnimation extends Animation {
 
     private float mFromYValue = 0.0f;
     private float mToYValue = 0.0f;
-
-    private float mFromXDelta;
-    private float mToXDelta;
-    private float mFromYDelta;
-    private float mToYDelta;
 
     private PointF mStart;
     private PointF mControl;
@@ -121,6 +116,11 @@ public class ArcTranslateAnimation extends Animation {
     public void initialize(int width, int height, int parentWidth,
                            int parentHeight) {
         super.initialize(width, height, parentWidth, parentHeight);
+        float mFromXDelta;
+        float mToXDelta;
+        float mFromYDelta;
+        float mToYDelta;
+
         mFromXDelta = resolveSize(mFromXType, mFromXValue, width, parentWidth);
         mToXDelta = resolveSize(mToXType, mToXValue, width, parentWidth);
         mFromYDelta = resolveSize(mFromYType, mFromYValue, height, parentHeight);
@@ -152,10 +152,9 @@ public class ArcTranslateAnimation extends Animation {
      *            a single dimension of the ending point
      */
     private long calcBezier(float interpolatedTime, float p0, float p1, float p2) {
-        long val = Math.round((Math.pow((1 - interpolatedTime), 2) * p0)
+        return Math.round((Math.pow((1 - interpolatedTime), 2) * p0)
                 + (2 * (1 - interpolatedTime) * interpolatedTime * p1)
                 + (Math.pow(interpolatedTime, 2) * p2));
-        return val;
     }
 
 }

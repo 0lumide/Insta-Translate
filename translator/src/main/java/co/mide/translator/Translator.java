@@ -15,6 +15,7 @@ import retrofit2.Retrofit;
  * i.e a simple class to be used for translating stuff
  * Created by Olumide on 12/30/2015.
  */
+@SuppressWarnings("unused")
 public class Translator {
     private String key;
     final String GOOGLE_TRANSLATE_ENDPOINT = "https://www.googleapis.com/language/translate/";

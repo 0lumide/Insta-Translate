@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 public class ClipBroadcastService extends Service {
     protected MyBinder binder;
@@ -25,6 +26,7 @@ public class ClipBroadcastService extends Service {
         clipMonitorThread.interrupt();
         Intent intent = new Intent(ClipMonitor.NOT_RUNNING);
         sendBroadcast(intent);
+        Log.e("service", "destroy");
         super.onDestroy();
     }
 

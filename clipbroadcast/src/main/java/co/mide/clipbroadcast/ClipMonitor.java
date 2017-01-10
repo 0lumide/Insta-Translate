@@ -11,11 +11,12 @@ public class ClipMonitor {
     private Context context;
 
     public ClipMonitor(Context context){
-        this.context = context;
+        this.context = context.getApplicationContext();
     }
 
     public void start(){
         Intent intent = new Intent(context, ClipBroadcastService.class);
+        context.getSystemService(Context.ALARM_SERVICE);
         context.startService(intent);
     }
 }

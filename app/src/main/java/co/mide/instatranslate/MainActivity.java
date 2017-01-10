@@ -4,9 +4,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -24,9 +26,12 @@ import co.mide.translator.Language;
 import co.mide.translator.Translator;
 import io.codetail.animation.SupportAnimator;
 import io.codetail.animation.ViewAnimationUtils;
+import jp.wasabeef.recyclerview.animators.SlideInRightAnimator;
+
 import android.support.design.widget.CoordinatorLayout;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.OvershootInterpolator;
 import android.widget.Spinner;
 
 import com.google.gson.Gson;
@@ -62,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewAdapter = new RecyclerAdapter(this);
         recyclerView = (EmptyRecyclerView)findViewById(R.id.recycler_view);
         recyclerView.setEmptyView(findViewById(R.id.empty_view));
+        recyclerView.setItemAnimator(new SlideInRightAnimator(new OvershootInterpolator(.51f)));
 
         initSwipe().attachToRecyclerView(recyclerView);
         sourceSpinner = (Spinner)findViewById(R.id.source_language_spinner);
@@ -149,13 +155,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void error(String message) {
                 System.err.printf("Error: %s\n", message);
-                //TODO show dialog saying error with connection
-                fabAdd.setClickable(false);
-                fabAdd.setAlpha(0.3f);
-                ViewCompat.setElevation(fabAdd, 0f);
-                fabAdd.setBackgroundTintList(ColorStateList.valueOf(
-                        ContextCompat.getColor(MainActivity.this, R.color.disabled_fab)));
-                dialog.dismiss();
+                if(sharedPreferences.getLong(LAST_SAVED_LANGUAGES, 0) == 0) {
+                    dialog.dismiss();
+                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
+                            .setMessage(R.string.list_update_error)
+                            .setNeutralButton(R.string.ok, null).create();
+                    alertDialog.show();
+                    fabAdd.setClickable(false);
+                    fabAdd.setAlpha(0.3f);
+                    ViewCompat.setElevation(fabAdd, 0f);
+                    fabAdd.setBackgroundTintList(ColorStateList.valueOf(
+                            ContextCompat.getColor(MainActivity.this, R.color.disabled_fab)));
+                }else {
+                    dialog.dismiss();
+                }
             }
         });
     }
@@ -294,6 +307,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void animateUnReveal(int cx, int cy, final FloatingActionButton mFloatingButton) {
         final View myView = findViewById(R.id.pair_select);
+
         // get the final radius for the clipping circle
         float finalRadius = hypo(myView.getWidth(), myView.getHeight());
 
@@ -340,7 +354,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd() {
-                ((FloatingActionButton)findViewById(R.id.fab_done)).show();
+                try {
+                    ((FloatingActionButton) findViewById(R.id.fab_done)).show();
+                }catch (NullPointerException e){
+                    throw new IllegalStateException("the view fab_done doesn't exist in the layout");
+                }
                 View view = findViewById(R.id.fade_view);
                 view.setOnTouchListener(null);
                 view.setOnLongClickListener(new View.OnLongClickListener() {
@@ -355,6 +373,7 @@ public class MainActivity extends AppCompatActivity {
                         onBackPressed();
                     }
                 });
+
                 findViewById(R.id.shadow_holder).setOnTouchListener(ignoreTouchListener);
             }
 
@@ -377,5 +396,13 @@ public class MainActivity extends AppCompatActivity {
     public void onPause(){
         super.onPause();
         recyclerViewAdapter.saveData();
+    }
+
+    @Override
+    public @NonNull View findViewById(int id){
+        View view = super.findViewById(id);
+        if(view == null)
+            throw new IllegalArgumentException("View "+id+" doesn't exist");
+        return view;
     }
 }

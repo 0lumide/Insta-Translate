@@ -10,4 +10,9 @@
     <string name="title_activity_pair_select">PairSelect</string>
     <string name="main_menu_time">Change time</string>
     <string name="translation_found">Translation found</string>
+    <string name="ok">@android:string/ok</string>
+    <string name="list_update_error">Unable to retrieve list of supported languages, try again later</string>
+    <string name="crash_restart">Oops I crashed, touch to restart</string>
+
+    <string name="copy">COPY</string>
 </resources>

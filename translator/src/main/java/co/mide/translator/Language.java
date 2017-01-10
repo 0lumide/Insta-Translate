@@ -5,8 +5,12 @@ package co.mide.translator;
  * Created by Olumide on 1/5/2016.
  */
 public class Language{
-    //iso639 code for the language
+    /**
+     * iso639 code for the language
+     */
     public String language;
-    //the name of the language in the requested language
+    /*
+     * the name of the language in the requested language
+     */
     public String name;
 }
