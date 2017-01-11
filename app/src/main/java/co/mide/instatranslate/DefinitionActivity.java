@@ -1,22 +1,35 @@
 package co.mide.instatranslate;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.content.ClipboardManager;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.ContentLoadingProgressBar;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Locale;
+
 import co.mide.clipbroadcast.ClipMonitor;
 import co.mide.instatranslate.data.DataStore;
 import co.mide.translator.Language;
 import co.mide.translator.Translator;
+
+import static android.speech.tts.TextToSpeech.LANG_AVAILABLE;
+import static android.speech.tts.TextToSpeech.LANG_COUNTRY_AVAILABLE;
+import static android.speech.tts.TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE;
+import static android.speech.tts.TextToSpeech.QUEUE_FLUSH;
 
 public class DefinitionActivity extends Activity {
     private TextView translatedTextView;
@@ -24,6 +37,7 @@ public class DefinitionActivity extends Activity {
     private TextView sourceTextView;
     private TextView destLangTextView;
     private ContentLoadingProgressBar loadingProgressBar;
+    private TextToSpeech textToSpeech;
 
     private static final String SOURCE_TEXT = "SOURCE_TEXT";
     private static final String TRANSLATED_TEXT = "TRANSLATED_TEXT";
@@ -59,12 +73,24 @@ public class DefinitionActivity extends Activity {
                 handleExternalIntent(intent); // Handle text being sent
             }
         } else {
+            String sourceIso = getIntent().getStringExtra(SOURCE_LANG_NAME);
+            String destIso = getIntent().getStringExtra(DEST_LANG_NAME);
+
+            String sourceLangName = Translator.getLanguageName(sourceIso).toUpperCase();
+            Language sourceLang = new Language(sourceIso, sourceLangName);
+            String destLangName = Translator.getLanguageName(destIso).toUpperCase();
+            Language destLang = new Language(destIso, destLangName);
+            LanguagePair langPair = new LanguagePair(sourceLang, destLang);
+
             // Set the texts
-            sourceTextView.setText(getIntent().getStringExtra(SOURCE_TEXT));
-            sourceLangTextView.setText(getIntent().getStringExtra(SOURCE_LANG_NAME));
-            destLangTextView.setText(getIntent().getStringExtra(DEST_LANG_NAME));
+            String sourceText = getIntent().getStringExtra(SOURCE_TEXT);
+            String translatedText = getIntent().getStringExtra(TRANSLATED_TEXT);
+            sourceTextView.setText(sourceText);
+            sourceLangTextView.setText(sourceLangName);
+            destLangTextView.setText(destLangName);
 
             translatedTextView.setText(getIntent().getStringExtra(TRANSLATED_TEXT));
+            initTextToSpeech(langPair, sourceText, translatedText);
         }
 
         // set listeners
@@ -123,20 +149,83 @@ public class DefinitionActivity extends Activity {
         }
     }
 
-    private void translateAndShow(final LanguagePair languagePair, String text) {
+    private void speak(Locale locale, String text) {
+        textToSpeech.setLanguage(locale);
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            textToSpeech.speak(text, QUEUE_FLUSH, null);
+        } else {
+            textToSpeech.speak(text, QUEUE_FLUSH, null, "unique-key?");
+        }
+    }
+
+    private void translateAndShow(final LanguagePair languagePair, final String text) {
         final Translator t = new Translator(getString(R.string.google_translate_api_key));
         t.translate(text, languagePair.getDestLanguage().language, new Translator.onTranslateComplete() {
             @Override
-            public void translateComplete(String translated, String detectedIso639) {
+            public void translateComplete(final String translated, String detectedIso639) {
                 unInitLoading();
                 translatedTextView.setText(translated);
-                destLangTextView.setText(languagePair.getDestLanguage().name);
-                sourceLangTextView.setText(languagePair.getSourceLanguage().name);
+                destLangTextView.setText(languagePair.getDestLanguage().name.toUpperCase());
+                sourceLangTextView.setText(languagePair.getSourceLanguage().name.toUpperCase());
+                initTextToSpeech(languagePair, text, translated);
             }
 
             public void error(String message) {
                 Toast.makeText(DefinitionActivity.this, R.string.translate_error, Toast.LENGTH_LONG).show();
                 finish();
+            }
+        });
+    }
+
+    private void animateViewVisible(final View view) {
+        if(Build.VERSION.SDK_INT < 12) {
+            view.setVisibility(View.VISIBLE);
+        } else {
+            view.setAlpha(0);
+            view.setVisibility(View.VISIBLE);
+            view.animate()
+                    .alpha(1.0f)
+                    .setDuration(500);
+        }
+    }
+
+    private void initTextToSpeech(final LanguagePair languagePair, final String text, final String translated) {
+        textToSpeech = new TextToSpeech(DefinitionActivity.this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status == TextToSpeech.SUCCESS) {
+                    String sourceIso = languagePair.getSourceLanguage().language;
+                    String destIso = languagePair.getDestLanguage().language;
+                    final Locale sourceLocale = new Locale(sourceIso);
+                    final Locale destLocale = new Locale(destIso);
+                    // Check if languages are supported
+                    int avail = textToSpeech.isLanguageAvailable(sourceLocale);
+                    if(avail == LANG_AVAILABLE
+                            || avail == LANG_COUNTRY_AVAILABLE
+                            || avail == LANG_COUNTRY_VAR_AVAILABLE){
+                        ImageButton speakButton = (ImageButton) findViewById(R.id.source_sound);
+                        animateViewVisible(speakButton);
+                        speakButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                speak(sourceLocale, text);
+                            }
+                        });
+                    }
+                    avail = textToSpeech.isLanguageAvailable(destLocale);
+                    if(avail == LANG_AVAILABLE
+                            || avail == LANG_COUNTRY_AVAILABLE
+                            || avail == LANG_COUNTRY_VAR_AVAILABLE){
+                        ImageButton speakButton = (ImageButton) findViewById(R.id.dest_sound);
+                        animateViewVisible(speakButton);
+                        speakButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                speak(destLocale, translated);
+                            }
+                        });
+                    }
+                }
             }
         });
     }
@@ -176,6 +265,14 @@ public class DefinitionActivity extends Activity {
     public void onPause(){
         super.onPause();
         finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(textToSpeech != null) {
+            textToSpeech.shutdown();
+        }
+        super.onDestroy();
     }
 
     @Override

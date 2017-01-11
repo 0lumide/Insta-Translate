@@ -76,10 +76,10 @@ public class BroadcastListener extends BroadcastReceiver {
             public void translateComplete(String translated, String detectedSourceLang) {
                 long endTime = System.currentTimeMillis();
 
-                String sourceLang = langPair.getSourceLanguage().name;
-                String destLang = langPair.getDestLanguage().name;
-                Intent intent = DefinitionActivity.builtIntent(context, sourceText, sourceLang,
-                        translated, destLang);
+                String sourceIso = langPair.getSourceLanguage().language;
+                String destIso = langPair.getDestLanguage().language;
+                Intent intent = DefinitionActivity.builtIntent(context, sourceText, sourceIso,
+                        translated, destIso);
 
                 if ((endTime - startTime) > TIME_LIMIT) {
                     String notificationText = context.getString(R.string.translation_found);

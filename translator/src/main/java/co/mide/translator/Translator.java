@@ -119,7 +119,7 @@ public class Translator {
      */
     public static String getLanguageName(String iso639){
         Locale loc = new Locale(iso639);
-        return loc.getDisplayLanguage(loc);
+        return loc.getDisplayLanguage();
     }
 
     /**
