@@ -16,9 +16,19 @@ public class ClipBroadcastService extends Service {
     public void onCreate(){
         super.onCreate();
         binder = new MyBinder();
-        clipMonitorThread = new ClipMonitorThread(getApplicationContext(),
-                (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE));
-        clipMonitorThread.start();
+        final ClipboardManager clipboard = ((ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE));
+        clipboard.addPrimaryClipChangedListener(new ClipboardManager.OnPrimaryClipChangedListener() {
+            @Override
+            public void onPrimaryClipChanged() {
+                String clip = clipboard.getPrimaryClip().getItemAt(0).coerceToText(ClipBroadcastService.this).toString();
+                if(!clip.isEmpty() && !clipboard.getPrimaryClipDescription().hasMimeType(ClipMonitor.MIME_IGNORE)) {
+                    sendNewClipBroadcast(clip);
+                }
+            }
+        });
+//        clipMonitorThread = new ClipMonitorThread(getApplicationContext(),
+//                (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE));
+//        clipMonitorThread.start();
     }
 
     @Override
