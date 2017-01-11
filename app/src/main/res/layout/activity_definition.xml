@@ -49,13 +49,30 @@
                 android:layout_marginLeft="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
-                <TextView
-                    android:textColor="@color/faint_text_color"
-                    android:textSize="16sp"
-                    tools:text="SPANISH"
-                    android:id="@+id/source_language"
+                <LinearLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:textColor="@color/faint_text_color"
+                        android:textSize="16sp"
+                        android:minWidth="70dp"
+                        tools:text="SPANISH"
+                        android:id="@+id/source_language"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <ImageButton
+                        android:id="@+id/source_sound"
+                        android:contentDescription="@string/source_sound_description"
+                        android:visibility="gone"
+                        android:src="@drawable/ic_volume_up_black_18dp"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginStart="6dp"
+                        android:layout_width="wrap_content"
+                        android:scaleType="fitCenter"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:layout_height="match_parent"/>
+                </LinearLayout>
                 <ScrollView
                     android:layout_weight="1"
                     android:fillViewport="true"
@@ -71,17 +88,43 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                 </ScrollView>
-                <TextView
-                    android:textColor="@color/faint_text_color"
+                <LinearLayout
                     android:layout_marginTop="20dp"
-                    android:textSize="16sp"
-                    tools:text="ENGLISH"
-                    android:id="@+id/dest_langage"
                     android:layout_width="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:textColor="@color/faint_text_color"
+                        android:textSize="16sp"
+                        android:minWidth="70dp"
+                        tools:text="ENGLISH"
+                        android:id="@+id/dest_langage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <ImageButton
+                        android:contentDescription="@string/dest_sound_description"
+                        android:id="@+id/dest_sound"
+                        android:visibility="gone"
+                        android:src="@drawable/ic_volume_up_black_18dp"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginStart="6dp"
+                        android:layout_width="wrap_content"
+                        android:scaleType="fitCenter"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:layout_height="match_parent"/>
+                </LinearLayout>
+                <android.support.v4.widget.ContentLoadingProgressBar
+                    android:layout_width="wrap_content"
+                    android:visibility="gone"
+                    android:id="@+id/loading"
+                    android:layout_margin="5dp"
+                    style="?android:attr/progressBarStyleSmallTitle"
+                    android:layout_gravity="center_horizontal"
                     android:layout_height="wrap_content" />
                 <ScrollView
                     android:animateLayoutChanges="true"
                     android:layout_weight="1"
+                    android:id="@+id/dest_content_scrollview"
                     android:fillViewport="true"
                     android:layout_width="match_parent"
                     android:layout_height="0dp">

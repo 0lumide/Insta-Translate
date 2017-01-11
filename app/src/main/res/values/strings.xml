@@ -13,6 +13,13 @@
     <string name="ok">@android:string/ok</string>
     <string name="list_update_error">Unable to retrieve list of supported languages, try again later</string>
     <string name="crash_restart">Oops I crashed, touch to restart</string>
-
+    <string name="share_translate">Insta Translate</string>
     <string name="copy">COPY</string>
+
+    <string name="invalid_string">Couldn\'t translate invalid text</string>
+    <string name="mime_plain_text">text/plain</string>
+    <string name="mime_html">text/html</string>
+
+    <string name="source_sound_description">Button to listen to text to be translated</string>
+    <string name="dest_sound_description">Button to listen to translated text</string>
 </resources>
