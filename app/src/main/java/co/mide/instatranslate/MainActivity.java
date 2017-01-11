@@ -38,6 +38,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
@@ -141,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         dialog = ProgressDialog.show(this, "",
                 getString(R.string.please_wait), true);
         Translator t = new Translator(getString(R.string.google_translate_api_key));
-        t.getLanguages("en", new Translator.onGetLanguagesComplete() {
+        t.getLanguages(Locale.getDefault().getLanguage(), new Translator.onGetLanguagesComplete() {
             @Override
             public void getLanguageComplete(ArrayList<Language> languages) {
                 languageList = languages;
@@ -183,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
     private void populateSpinners(ArrayList<Language> languages){
         destSpinner.setAdapter(new CustomSpinnerAdapter(this, languages));
         ArrayList<Language> sourceLanguages = new ArrayList<>(languages.size());
-        ArrayList<RecyclerAdapter.LanguagePair> voidedLanguages = new ArrayList<>(recyclerViewAdapter.getItemCount());
+        ArrayList<LanguagePair> voidedLanguages = new ArrayList<>(recyclerViewAdapter.getItemCount());
         for(int i = 0; i < recyclerViewAdapter.getItemCount(); i++){
             voidedLanguages.add(recyclerViewAdapter.getItem(i));
         }

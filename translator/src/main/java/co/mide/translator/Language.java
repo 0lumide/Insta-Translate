@@ -6,11 +6,20 @@ package co.mide.translator;
  */
 public class Language{
     /**
-     * iso639 code for the language
+     * iso639-2 code for the language
      */
     public String language;
     /*
      * the name of the language in the requested language
      */
     public String name;
+
+    public Language () {
+
+    }
+
+    public Language(String iso639_2, String languageName) {
+        this.language = iso639_2;
+        this.name = languageName;
+    }
 }

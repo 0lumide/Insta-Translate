@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ClipBroadcast</string>
+    <string name="broadcast_service_description">This service monitors the clipboard to know when the user wants a translation</string>
 </resources>

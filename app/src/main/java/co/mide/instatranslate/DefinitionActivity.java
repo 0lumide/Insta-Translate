@@ -7,14 +7,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.content.ClipboardManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import co.mide.clipbroadcast.ClipMonitor;
+import co.mide.instatranslate.data.DataStore;
+import co.mide.translator.Language;
+import co.mide.translator.Translator;
 
 public class DefinitionActivity extends Activity {
     private TextView translatedTextView;
+    private TextView sourceLangTextView;
+    private TextView sourceTextView;
+    private TextView destLangTextView;
+    private ContentLoadingProgressBar loadingProgressBar;
+
     private static final String SOURCE_TEXT = "SOURCE_TEXT";
     private static final String TRANSLATED_TEXT = "TRANSLATED_TEXT";
     private static final String DEST_LANG_NAME = "DEST_LANG_NAME";
@@ -25,10 +35,11 @@ public class DefinitionActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_definition);
 
-        TextView sourceTextView = (TextView)findViewById(R.id.source_content);
-        TextView sourceLangTextView = (TextView)findViewById(R.id.source_language);
-        TextView destLangTextView = (TextView)findViewById(R.id.dest_langage);
-        translatedTextView = (TextView)findViewById(R.id.dest_content);
+        sourceTextView = (TextView) findViewById(R.id.source_content);
+        sourceLangTextView = (TextView) findViewById(R.id.source_language);
+        destLangTextView = (TextView) findViewById(R.id.dest_langage);
+        translatedTextView = (TextView) findViewById(R.id.dest_content);
+        loadingProgressBar = (ContentLoadingProgressBar)findViewById(R.id.loading);
         View cardView = findViewById(R.id.card_view);
 
         cardView.getParent().requestDisallowInterceptTouchEvent(true);
@@ -39,12 +50,22 @@ public class DefinitionActivity extends Activity {
             }
         });
 
-        // Set the texts
-        sourceLangTextView.setText(getIntent().getStringExtra(SOURCE_LANG_NAME));
-        destLangTextView.setText(getIntent().getStringExtra(DEST_LANG_NAME));
 
-        sourceTextView.setText(getIntent().getStringExtra(SOURCE_TEXT));
-        translatedTextView.setText(getIntent().getStringExtra(TRANSLATED_TEXT));
+        Intent intent = getIntent();
+
+        if (Intent.ACTION_SEND.equals(intent.getAction())) {
+            if (getString(R.string.mime_plain_text).equals(intent.getType())
+                    || getString(R.string.mime_html).equals(intent.getType())) {
+                handleExternalIntent(intent); // Handle text being sent
+            }
+        } else {
+            // Set the texts
+            sourceTextView.setText(getIntent().getStringExtra(SOURCE_TEXT));
+            sourceLangTextView.setText(getIntent().getStringExtra(SOURCE_LANG_NAME));
+            destLangTextView.setText(getIntent().getStringExtra(DEST_LANG_NAME));
+
+            translatedTextView.setText(getIntent().getStringExtra(TRANSLATED_TEXT));
+        }
 
         // set listeners
         findViewById(R.id.copy_button).setOnClickListener(new View.OnClickListener() {
@@ -63,6 +84,76 @@ public class DefinitionActivity extends Activity {
         };
         findViewById(R.id.close_button).setOnClickListener(close);
         findViewById(R.id.background).setOnClickListener(close);
+    }
+
+    private void handleExternalIntent(Intent intent) {
+        final String text = intent.getStringExtra(Intent.EXTRA_TEXT);
+        if(text == null || text.isEmpty()) {
+            Toast.makeText(this, R.string.invalid_string, Toast.LENGTH_LONG);
+            finish();
+        } else {
+            sourceTextView.setText(text);
+            initLoading();
+            final Translator t = new Translator(getString(R.string.google_translate_api_key));
+
+            t.detectLanguage(text, new Translator.onLanguageDetected(){
+                @Override
+                public void languageDetected(String detectedIso639) {
+                    Language destLang = null;
+                    for(LanguagePair pair: DataStore.getLanguagePairs(DefinitionActivity.this)) {
+                        if (pair.getSourceLanguage().language.equals(detectedIso639)) {
+                            destLang = pair.getDestLanguage();
+                            break;
+                        }
+                    }
+                    if (destLang == null) {
+                        destLang = DataStore.getDefaultDestLang(DefinitionActivity.this);
+                    }
+                    String langName = Translator.getLanguageName(detectedIso639);
+                    Language sourceLang = new Language(detectedIso639, langName);
+                    LanguagePair langPair = new LanguagePair(sourceLang, destLang);
+                    translateAndShow(langPair, text);
+                }
+
+                public void error(String message){
+                    Toast.makeText(DefinitionActivity.this, R.string.translate_error, Toast.LENGTH_LONG).show();
+                    finish();
+                }
+            });
+        }
+    }
+
+    private void translateAndShow(final LanguagePair languagePair, String text) {
+        final Translator t = new Translator(getString(R.string.google_translate_api_key));
+        t.translate(text, languagePair.getDestLanguage().language, new Translator.onTranslateComplete() {
+            @Override
+            public void translateComplete(String translated, String detectedIso639) {
+                unInitLoading();
+                translatedTextView.setText(translated);
+                destLangTextView.setText(languagePair.getDestLanguage().name);
+                sourceLangTextView.setText(languagePair.getSourceLanguage().name);
+            }
+
+            public void error(String message) {
+                Toast.makeText(DefinitionActivity.this, R.string.translate_error, Toast.LENGTH_LONG).show();
+                finish();
+            }
+        });
+    }
+
+    private void initLoading() {
+        loadingProgressBar.setVisibility(View.VISIBLE);
+        int color = ContextCompat.getColor(this, R.color.empty_text_block);
+        sourceLangTextView.setBackgroundColor(color);
+        destLangTextView.setBackgroundColor(color);
+        findViewById(R.id.dest_content_scrollview).setVisibility(View.GONE);
+    }
+
+    private void unInitLoading() {
+        loadingProgressBar.setVisibility(View.GONE);
+        sourceLangTextView.setBackgroundResource(0);
+        destLangTextView.setBackgroundResource(0);
+        findViewById(R.id.dest_content_scrollview).setVisibility(View.VISIBLE);
     }
 
     private void copyTranslationToClipBoard(){

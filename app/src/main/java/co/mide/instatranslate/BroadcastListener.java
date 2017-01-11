@@ -12,8 +12,8 @@ import android.util.Patterns;
 import android.widget.Toast;
 
 import co.mide.clipbroadcast.ClipMonitor;
+import co.mide.instatranslate.data.DataStore;
 import co.mide.translator.Translator;
-import static co.mide.instatranslate.RecyclerAdapter.LanguagePair;
 
 public class BroadcastListener extends BroadcastReceiver {
     private final long TIME_LIMIT = 4000;
@@ -52,7 +52,7 @@ public class BroadcastListener extends BroadcastReceiver {
         t.detectLanguage(sourceText, new Translator.onLanguageDetected(){
             @Override
             public void languageDetected(String detectedIso639) {
-                for(LanguagePair langPair: RecyclerAdapter.getLanguagePairs(context)) {
+                for(LanguagePair langPair: DataStore.getLanguagePairs(context)) {
                     if (langPair.getSourceLanguage().language.equals(detectedIso639)) {
                         translateAndShow(context, langPair, sourceText, startTime);
                         break;
@@ -73,7 +73,7 @@ public class BroadcastListener extends BroadcastReceiver {
         final String destIso = langPair.getDestLanguage().language;
         t.translate(sourceText, destIso, new Translator.onTranslateComplete() {
             @Override
-            public void translateComplete(String translated) {
+            public void translateComplete(String translated, String detectedSourceLang) {
                 long endTime = System.currentTimeMillis();
 
                 String sourceLang = langPair.getSourceLanguage().name;

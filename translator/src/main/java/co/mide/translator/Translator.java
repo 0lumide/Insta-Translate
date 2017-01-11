@@ -4,8 +4,9 @@ import android.os.Build;
 import android.support.annotation.NonNull;
 import android.text.Html;
 
-import com.neovisionaries.i18n.*;
 import java.util.ArrayList;
+import java.util.Locale;
+
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,7 +47,9 @@ public class Translator {
                     callback.error(response.message());
                     return;
                 }
-                callback.translateComplete(htmlDecode(response.body().data.translations.get(0).translatedText));
+                String translated = response.body().data.translations.get(0).translatedText;
+                String detectedSourceLang = response.body().data.translations.get(0).detectedSourceLanguage;
+                callback.translateComplete(htmlDecode(translated), detectedSourceLang);
             }
 
             @Override
@@ -114,16 +117,16 @@ public class Translator {
      * @param iso639 the string that is used to represent languages
      * @return the name of the language
      */
-    public String getLanguageName(String iso639){
-        LanguageAlpha3Code language  = LanguageAlpha3Code.getByCode(iso639);
-        return language.getName();
+    public static String getLanguageName(String iso639){
+        Locale loc = new Locale(iso639);
+        return loc.getDisplayLanguage(loc);
     }
 
     /**
      * Interface that contains the translate complete callback
      */
     public interface onTranslateComplete{
-        void translateComplete(String translated);
+        void translateComplete(String translated, String detectedIso639);
         void error(String message);
     }
 

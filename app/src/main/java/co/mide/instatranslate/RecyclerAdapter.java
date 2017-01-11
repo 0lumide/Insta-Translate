@@ -15,6 +15,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
 
+import co.mide.instatranslate.data.DataStore;
 import co.mide.translator.Language;
 
 /**
@@ -24,26 +25,11 @@ import co.mide.translator.Language;
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
     private static ArrayList<LanguagePair> adapterData;
-    static final String LANG_PAIRS = "languagePairs";
-    static final String LANG_PAIRS_JSON = "language_pairs_json";
-    private static SharedPreferences sharedPreferences;
     Context context;
 
     public RecyclerAdapter(Context context) {
         this.context = context.getApplicationContext();
-        sharedPreferences = this.context.getSharedPreferences(LANG_PAIRS, Context.MODE_PRIVATE);
-        adapterData = getLanguagePairs(context);
-    }
-
-    public static ArrayList<LanguagePair> getLanguagePairs(Context context){
-        if(adapterData != null)
-            return adapterData;
-        if(sharedPreferences == null)
-            sharedPreferences = context.getApplicationContext().getSharedPreferences(LANG_PAIRS, Context.MODE_PRIVATE);
-        adapterData = (new Gson()).fromJson(sharedPreferences.getString(LANG_PAIRS_JSON, null), new TypeToken<ArrayList<LanguagePair>>() {}.getType());
-        if(adapterData == null)
-            adapterData = new ArrayList<>();
-        return adapterData;
+        adapterData = DataStore.getLanguagePairs(context);
     }
 
     public void add(Language source, Language dest){
@@ -107,24 +93,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         }
     }
 
-    public static class LanguagePair{
-        private Language sourceLanguage, destLanguage;
-
-        public LanguagePair(Language source, Language dest){
-            sourceLanguage = source;
-            destLanguage = dest;
-        }
-
-        public Language getSourceLanguage(){
-            return sourceLanguage;
-        }
-
-        public  Language getDestLanguage(){
-            return destLanguage;
-        }
-    }
-
     public void saveData(){
-        sharedPreferences.edit().putString(LANG_PAIRS_JSON, (new Gson()).toJson(adapterData)).apply();
+        DataStore.updateLanguagePairs(context, adapterData);
     }
 }
