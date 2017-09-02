@@ -10,7 +10,7 @@
     android:layout_margin="0dp"
     android:background="#e0e0e0"
     android:fitsSystemWindows="true"
-    tools:context="co.mide.instatranslate.MainActivity">
+    tools:context="co.mide.instatranslate.views.MainActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

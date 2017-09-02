@@ -13,6 +13,9 @@ import android.widget.Toast;
 
 import co.mide.clipbroadcast.ClipMonitor;
 import co.mide.instatranslate.data.DataStore;
+import co.mide.instatranslate.data.LanguagePair;
+import co.mide.instatranslate.views.DefinitionActivity;
+import co.mide.instatranslate.views.MainActivity;
 import co.mide.translator.Translator;
 
 public class BroadcastListener extends BroadcastReceiver {

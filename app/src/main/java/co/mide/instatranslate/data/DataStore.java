@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import co.mide.instatranslate.LanguagePair;
 import co.mide.translator.Language;
 
 

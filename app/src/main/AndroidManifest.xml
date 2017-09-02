@@ -2,16 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="co.mide.instatranslate">
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:installLocation="internalOnly"
         android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".views.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -30,20 +32,30 @@
                 <action android:name="co.mide.clipbroadcast.NOT_RUNNING"/>
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".BootCompleteAlarmRegisterReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
 
         <activity
-            android:name=".DefinitionActivity"
+            android:name=".views.DefinitionActivity"
             android:excludeFromRecents="true"
             android:label="@string/title_activity_definition"
             android:theme="@style/AppTheme.Transparent">
             <intent-filter
-                android:roundIcon="@mipmap/ic_launcher_round"
+                android:icon="@mipmap/ic_launcher"
                 android:label="@string/share_translate"
-                android:icon="@mipmap/ic_launcher">
+                android:roundIcon="@mipmap/ic_launcher_round">
                 <action android:name="android.intent.action.SEND"/>
-                <category android:name="android.intent.category.DEFAULT" />
+
+                <category android:name="android.intent.category.DEFAULT"/>
+
                 <data android:mimeType="@string/mime_plain_text"/>
-                <data android:mimeType="@string/mime_html" />
+                <data android:mimeType="@string/mime_html"/>
             </intent-filter>
         </activity>
     </application>

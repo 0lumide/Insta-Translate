@@ -1,4 +1,4 @@
-package co.mide.instatranslate;
+package co.mide.instatranslate.views;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -21,7 +21,12 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import org.solovyev.android.views.llm.LinearLayoutManager;
 import co.mide.clipbroadcast.ClipMonitor;
-import co.mide.instatranslate.views.EmptyRecyclerView;
+import co.mide.instatranslate.AlarmManagerController;
+import co.mide.instatranslate.ArcTranslateAnimation;
+import co.mide.instatranslate.CustomSpinnerAdapter;
+import co.mide.instatranslate.R;
+import co.mide.instatranslate.RecyclerAdapter;
+import co.mide.instatranslate.data.LanguagePair;
 import co.mide.translator.Language;
 import co.mide.translator.Translator;
 import io.codetail.animation.SupportAnimator;
@@ -60,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         new ClipMonitor(this).start();
+        AlarmManagerController.registerServiceLauncherAlarm(this);
         setContentView(R.layout.activity_main);
         sharedPreferences = getSharedPreferences(LANGUAGES, Context.MODE_PRIVATE);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

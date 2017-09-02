@@ -1,7 +1,5 @@
-package co.mide.instatranslate;
+package co.mide.instatranslate.views;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
@@ -22,7 +20,9 @@ import android.widget.Toast;
 import java.util.Locale;
 
 import co.mide.clipbroadcast.ClipMonitor;
+import co.mide.instatranslate.R;
 import co.mide.instatranslate.data.DataStore;
+import co.mide.instatranslate.data.LanguagePair;
 import co.mide.translator.Language;
 import co.mide.translator.Translator;
 

@@ -1,7 +1,6 @@
 package co.mide.instatranslate;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,12 +9,10 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 import java.util.ArrayList;
 
 import co.mide.instatranslate.data.DataStore;
+import co.mide.instatranslate.data.LanguagePair;
 import co.mide.translator.Language;
 
 /**

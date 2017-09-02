@@ -1,4 +1,4 @@
-package co.mide.instatranslate;
+package co.mide.instatranslate.data;
 
 import co.mide.translator.Language;
 
