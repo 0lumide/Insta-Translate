@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                 languageList = languages;
                 sharedPreferences.edit().putString(LANGUAGES, (new Gson()).toJson(languages)).apply();
                 for (int i = 0; i < languages.size(); i++)
-                    System.out.printf("%s: %s\n", languages.get(i).language, languages.get(i).name);
+                    System.out.printf("%s: %s\n", languages.get(i).getLanguage(), languages.get(i).getName());
                 dialog.dismiss();
                 sharedPreferences.edit().putLong(LAST_SAVED_LANGUAGES, System.currentTimeMillis()).apply();
             }
@@ -197,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < languages.size(); i++){
             sourceLanguages.add(languages.get(i));
             for(int j = 0; j < voidedLanguages.size(); j++){
-                if(languages.get(i).name.equals(voidedLanguages.get(j).getSourceLanguage().name)){
+                if(languages.get(i).getName().equals(voidedLanguages.get(j).getSourceLanguage().getName())){
                     voidedLanguages.remove(j);
                     sourceLanguages.remove(sourceLanguages.size()-1);
                     break;
@@ -287,16 +287,6 @@ public class MainActivity extends AppCompatActivity {
         float y = dest.getY() + getResources().getDimension(R.dimen.select_pair_view_height) - 0.5f*mFloatingButton.getHeight();
         animateReveal((int) x, (int) y, mFloatingButton);
 
-//        new Handler().postDelayed(new Runnable() {
-//            public void run() {
-//                View dest = findViewById(R.id.shadow_holder);
-//                float x = 0.5f * dest.getWidth();
-//                float y = dest.getY() + (0.5f * (getResources().getDimension(R.dimen.select_pair_view_height)));
-//                animateReveal((int) x, (int) y, mFloatingButton);
-//            }
-//        }, anim.getDuration());
-//
-//        mFloatingButton.startAnimation(anim);
     }
 
     private void animateShowButton(final FloatingActionButton mFloatingButton, View dest) {

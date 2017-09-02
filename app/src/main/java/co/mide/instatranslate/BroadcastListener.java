@@ -56,7 +56,7 @@ public class BroadcastListener extends BroadcastReceiver {
             @Override
             public void languageDetected(String detectedIso639) {
                 for(LanguagePair langPair: DataStore.getLanguagePairs(context)) {
-                    if (langPair.getSourceLanguage().language.equals(detectedIso639)) {
+                    if (langPair.getSourceLanguage().getLanguage().equals(detectedIso639)) {
                         translateAndShow(context, langPair, sourceText, startTime);
                         break;
                     }
@@ -73,14 +73,14 @@ public class BroadcastListener extends BroadcastReceiver {
     private void translateAndShow(final Context context, final LanguagePair langPair,
                                   final String sourceText, final long startTime){
         Translator t = new Translator(context.getString(R.string.google_translate_api_key));
-        final String destIso = langPair.getDestLanguage().language;
+        final String destIso = langPair.getDestLanguage().getLanguage();
         t.translate(sourceText, destIso, new Translator.onTranslateComplete() {
             @Override
             public void translateComplete(String translated, String detectedSourceLang) {
                 long endTime = System.currentTimeMillis();
 
-                String sourceIso = langPair.getSourceLanguage().language;
-                String destIso = langPair.getDestLanguage().language;
+                String sourceIso = langPair.getSourceLanguage().getLanguage();
+                String destIso = langPair.getDestLanguage().getLanguage();
                 Intent intent = DefinitionActivity.builtIntent(context, sourceText, sourceIso,
                         translated, destIso);
 

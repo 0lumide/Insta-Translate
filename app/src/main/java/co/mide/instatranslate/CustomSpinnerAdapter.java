@@ -31,11 +31,11 @@ public class CustomSpinnerAdapter extends BaseAdapter{
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
         if((convertView != null) && convertView instanceof TextView){
-            ((TextView)convertView).setText(languages.get(position).name);
+            ((TextView)convertView).setText(languages.get(position).getName());
             return convertView;
         }else{
             TextView textView = (TextView)View.inflate(context, R.layout.spinner_textview, null);
-            textView.setText(languages.get(position).name);
+            textView.setText(languages.get(position).getName());
             return textView;
         }
     }

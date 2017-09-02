@@ -127,7 +127,9 @@ public class DefinitionActivity extends Activity {
                 public void languageDetected(String detectedIso639) {
                     Language destLang = null;
                     for(LanguagePair pair: DataStore.getLanguagePairs(DefinitionActivity.this)) {
-                        if (pair.getSourceLanguage().language.equals(detectedIso639)) {
+                        // this is because the Locale class converts the iso to old iso
+                        String iso = new Locale(detectedIso639).getLanguage();
+                        if (pair.getSourceLanguage().getLanguage().equals(iso)) {
                             destLang = pair.getDestLanguage();
                             break;
                         }
@@ -160,13 +162,13 @@ public class DefinitionActivity extends Activity {
 
     private void translateAndShow(final LanguagePair languagePair, final String text) {
         final Translator t = new Translator(getString(R.string.google_translate_api_key));
-        t.translate(text, languagePair.getDestLanguage().language, new Translator.onTranslateComplete() {
+        t.translate(text, languagePair.getDestLanguage().getLanguage(), new Translator.onTranslateComplete() {
             @Override
             public void translateComplete(final String translated, String detectedIso639) {
                 unInitLoading();
                 translatedTextView.setText(translated);
-                destLangTextView.setText(languagePair.getDestLanguage().name.toUpperCase());
-                sourceLangTextView.setText(languagePair.getSourceLanguage().name.toUpperCase());
+                destLangTextView.setText(languagePair.getDestLanguage().getName().toUpperCase());
+                sourceLangTextView.setText(languagePair.getSourceLanguage().getName().toUpperCase());
                 initTextToSpeech(languagePair, text, translated);
             }
 
@@ -194,8 +196,8 @@ public class DefinitionActivity extends Activity {
             @Override
             public void onInit(int status) {
                 if(status == TextToSpeech.SUCCESS) {
-                    String sourceIso = languagePair.getSourceLanguage().language;
-                    String destIso = languagePair.getDestLanguage().language;
+                    String sourceIso = languagePair.getSourceLanguage().getLanguage();
+                    String destIso = languagePair.getDestLanguage().getLanguage();
                     final Locale sourceLocale = new Locale(sourceIso);
                     final Locale destLocale = new Locale(destIso);
                     // Check if languages are supported

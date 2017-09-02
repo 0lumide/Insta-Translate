@@ -56,14 +56,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.destLang.setText(adapterData.get(position).getDestLanguage().name);
+        holder.destLang.setText(adapterData.get(position).getDestLanguage().getName());
         holder.dismissImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 itemDismissed(holder.getAdapterPosition());
             }
         });
-        holder.sourceLang.setText(adapterData.get(position).getSourceLanguage().name);
+        holder.sourceLang.setText(adapterData.get(position).getSourceLanguage().getName());
     }
 
     @Override
