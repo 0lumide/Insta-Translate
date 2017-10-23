@@ -2,7 +2,7 @@
     "title": "Insta Translate",
     "description": "Android translate app",
     "details": "This is an android app that lets you get translations instantly without having to leave the app with the source text.",
-    "destinationLink": "https://play.google.com/store/apps/details?id=co.mide.instatranslate",
+    "destinationLink": "https://github.com/0lumide/Insta-Translate",
     "iconImage": "img/icon.png",
     "media": [
         "img/screen1.png",
