@@ -1,5 +1,5 @@
 # Insta Translate
-The Source code for my Android app Insta Translate. It's currently available on the play store [here](https://play.google.com/store/apps/details?id=co.mide.instatranslate)
+The Source code for my Android app Insta Translate. ~~It's currently available on the play store [here](https://play.google.com/store/apps/details?id=co.mide.instatranslate)~~
 
 ![icon](img/icon.png)
 ## Description
