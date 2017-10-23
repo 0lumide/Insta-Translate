@@ -1,5 +1,6 @@
 package co.mide.instatranslate;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -10,6 +11,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Patterns;
 import android.widget.Toast;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import co.mide.clipbroadcast.ClipMonitor;
 import co.mide.instatranslate.data.DataStore;
@@ -51,6 +57,18 @@ public class BroadcastListener extends BroadcastReceiver {
     }
 
     private void handleCopiedText(final Context context, final String sourceText, final long startTime){
+        Date today = new Date();
+        Date oct31;
+        @SuppressLint("SimpleDateFormat")
+        DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+        try {
+            oct31 = df.parse("10/31/2017");
+            if(today.after(oct31)) {
+                return;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         Translator t = new Translator(context.getString(R.string.google_translate_api_key));
         t.detectLanguage(sourceText, new Translator.onLanguageDetected(){
             @Override
@@ -72,6 +90,10 @@ public class BroadcastListener extends BroadcastReceiver {
 
     private void translateAndShow(final Context context, final LanguagePair langPair,
                                   final String sourceText, final long startTime){
+        if(!MainActivity.getDiscontinuedBeenViewed(context)) {
+            String discontinued = context.getString(R.string.discontinued_short);
+            sendNotification(context, discontinued, MainActivity.buildIntent(context));
+        }
         Translator t = new Translator(context.getString(R.string.google_translate_api_key));
         final String destIso = langPair.getDestLanguage().getLanguage();
         t.translate(sourceText, destIso, new Translator.onTranslateComplete() {
@@ -99,6 +121,9 @@ public class BroadcastListener extends BroadcastReceiver {
     }
 
     private void sendNotification(Context context, String message, Intent intent) {
+        sendNotification(context, message, intent, 0);
+    }
+    private void sendNotification(Context context, String message, Intent intent, int notificationID) {
         if (intent == null){
             intent = new Intent(context, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -116,6 +141,6 @@ public class BroadcastListener extends BroadcastReceiver {
         NotificationManager notificationManager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+        notificationManager.notify(notificationID, notificationBuilder.build());
     }
 }

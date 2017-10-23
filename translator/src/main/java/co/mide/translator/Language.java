@@ -41,17 +41,17 @@ public class Language{
         return locale;
     }
 
-    public void setLocale(String locale) {
-        if(locale.contains("-")) {
-            String[] localArr = locale.split("-");
+    public void setLocale(String localeStr) {
+        if(localeStr.contains("-")) {
+            String[] localArr = localeStr.split("-");
             this.locale = new Locale(localArr[0], localArr[1]);
-        } else if (locale.contains("_")) {
-            String[] localArr = locale.split("_");
+        } else if (localeStr.contains("_")) {
+            String[] localArr = localeStr.split("_");
             this.locale = new Locale(localArr[0], localArr[1]);
         } else {
-            this.locale = new Locale(language);
+            this.locale = new Locale(localeStr);
         }
-        setName(locale);
+        setName(locale.toString());
     }
 
     /**

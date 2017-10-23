@@ -1,7 +1,12 @@
 package co.mide.instatranslate.views;
 
 import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.support.annotation.NonNull;
@@ -61,6 +66,9 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Language> languageList;
     View.OnTouchListener ignoreTouchListener;
 
+    public static String PACKAGE_NAME = "co.mide.instatranslate";
+    public static String DISCONTINUED_READ = "discontinued_read";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,6 +125,33 @@ public class MainActivity extends AppCompatActivity {
             languageList = getLanguages();
         else
             updateLanguages();
+
+        showDiscontinuedDialog();
+    }
+
+    public void showDiscontinuedDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final String discontinued = getString(R.string.discontinued);
+        builder.setMessage(discontinued);
+        builder.setTitle(":(");
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                setDiscontinuedBeenViewed(MainActivity.this, true);
+            }
+        });
+        builder.setNeutralButton(R.string.copy, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String[] mimeTypes = new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN};
+                ClipDescription clipDescription = new ClipDescription("Text from Clipboard", mimeTypes);
+                ClipData.Item clipItem = new ClipData.Item(discontinued);
+                ClipData clipData = new ClipData(clipDescription, clipItem);
+                ClipboardManager clipboardManager = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+                clipboardManager.setPrimaryClip(clipData);
+            }
+        });
+        builder.create().show();
     }
 
     @Override
@@ -178,6 +213,20 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public static void setDiscontinuedBeenViewed(Context context, boolean status) {
+        SharedPreferences prefs = context.getSharedPreferences(PACKAGE_NAME, MODE_PRIVATE);
+        prefs.edit().putBoolean(DISCONTINUED_READ, status).apply();
+    }
+
+    public static boolean getDiscontinuedBeenViewed(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PACKAGE_NAME, MODE_PRIVATE);
+        return prefs.getBoolean(DISCONTINUED_READ, false);
+    }
+
+    public static Intent buildIntent(Context context) {
+        return new Intent(context, MainActivity.class);
     }
 
     @Override

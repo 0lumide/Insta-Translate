@@ -21,7 +21,8 @@ public class ClipBroadcastService extends Service {
             @Override
             public void onPrimaryClipChanged() {
                 String clip = clipboard.getPrimaryClip().getItemAt(0).coerceToText(ClipBroadcastService.this).toString();
-                if(!clip.isEmpty() && !clipboard.getPrimaryClipDescription().hasMimeType(ClipMonitor.MIME_IGNORE)) {
+                if(clip.length() <= 160 && !clip.isEmpty()
+                        && !clipboard.getPrimaryClipDescription().hasMimeType(ClipMonitor.MIME_IGNORE)) {
                     sendNewClipBroadcast(clip);
                 }
             }

@@ -3,7 +3,7 @@
     <string name="title_activity_definition">DefinitionActivity</string>
     <string name="translation_copied">Copied to Clipboard</string>
     <string name="translate_error">Oops an error occurred, try again later</string>
-    <string name="please_wait">One moment, please wait&#8230;</string>
+    <string name="please_wait">One moment, please wait…</string>
     <string name="arrow_description">Arrow showing destination language</string>
     <string name="discard">Discard this language pair configuration</string>
     <string name="empty_scroll_view">You have no language pair. Add a new language pair</string>
@@ -22,4 +22,10 @@
 
     <string name="source_sound_description">Button to listen to text to be translated</string>
     <string name="dest_sound_description">Button to listen to translated text</string>
+
+    <string name="discontinued">InstaTranslate is being discontinued. It will be pulled from the
+        play store on October 31. Thanks for all the support, it\'s been a fun journey with you all.
+    </string>
+
+    <string name="discontinued_short">Unfortunately InstaTranslate is being discontinued…</string>
 </resources>
